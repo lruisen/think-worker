@@ -1,0 +1,33 @@
+{
+    "name": "lruisen/think-worker",
+    "description": "Workerman extend for ThinkPHP",
+    "type": "library",
+    "license": "Apache License 2.0",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "ThinkWorker\\": "src/"
+        },
+        "files": [
+          "src/functions.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "lruisen",
+            "email": "lruisen@email.cn"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.0.0",
+        "voku/anti-xss": "^4.1",
+        "topthink/framework": "^8.0",
+        "workerman/workerman": "^4.1",
+        "workerman/gateway-worker": "^3.1",
+        "topthink/think-queue": "^3.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": ">=4.2"
+    }
+}
