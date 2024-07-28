@@ -150,7 +150,7 @@ if (is_callable('opcache_reset')) {
 }
 
 try{
-	App()::getInstance()->initialize();
+	\$app = App()::getInstance()->initialize();
 			
 	worker_start('$processParam', $configParam);
 	
