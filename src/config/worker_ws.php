@@ -1,7 +1,7 @@
 <?php
 
 $logFile = sprintf('%s%s.log', runtime_path('worker/log'), date('Y-m-d'));
-if (!is_dir(dirname($logFile))) {
+if (! is_dir(dirname($logFile))) {
     mkdir(dirname($logFile), 0755, true);
 }
 
@@ -11,7 +11,6 @@ $register = [
 ];
 
 return [
-    'enable' => false, // 是否启用
     // 注册(Register)服务参数
     'register' => $register,
 

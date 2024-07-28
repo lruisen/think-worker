@@ -36,7 +36,7 @@ class WorkerForWindows extends Command
         $output->writeln(sprintf('<info>Starting Workerman %s server...</info>', $server));
 
         $servers = [
-            __WT_PKG__ . DIRECTORY_SEPARATOR . sprintf('window_start_%s.php', $server)
+            __WT_PKG__ . DIRECTORY_SEPARATOR . sprintf('windows_start_%s.php', $server)
         ];
 
         $runtimeProcessPath = $this->getRuntimeProcessPath();
