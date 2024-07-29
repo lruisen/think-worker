@@ -29,5 +29,17 @@
     },
     "require-dev": {
         "symfony/var-dumper": ">=4.2"
+    },
+    "extra": {
+        "think": {
+            "services": [
+                "ThinkWorker\\Service"
+            ],
+            "config": {
+                "worker_process": "src/config/worker_process.php",
+                "worker_http": "src/config/worker_http.php",
+                "worker_ws": "src/config/worker_ws.php"
+            }
+        }
     }
 }

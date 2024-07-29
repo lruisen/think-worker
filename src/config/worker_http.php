@@ -6,6 +6,7 @@ if (!is_dir(dirname($logFile))) {
 }
 
 return [
+	'enable' => true, // 是否启用 http 服务
     // Worker的参数（支持所有配置项）
     'option' => [
         'protocol' => 'http', // 协议，支持 tcp udp unix http websocket text

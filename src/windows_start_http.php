@@ -5,4 +5,4 @@ namespace think;
 
 require_once __DIR__ . '/../../../autoload.php';
 
-(new App())->console->call('worker', ['http', 'start']);
+(new App())->console->call('worker');
