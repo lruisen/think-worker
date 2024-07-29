@@ -16,17 +16,51 @@ use Workerman\Worker;
 
 class HttpService extends Server
 {
-	protected ?Worker $worker;
+	/**
+	 * 容器
+	 * @var App|null
+	 */
 	protected ?App $app;
 
+	/**
+	 * 监控
+	 * @var mixed
+	 */
 	protected mixed $monitor;
+
+	/**
+	 * 最后修改时间
+	 * @var int|null
+	 */
 	protected ?int $lastMtime;
 
+	/**
+	 * 监控配置
+	 * @var array
+	 */
 	protected static array $monitor_config = [];
 
+	/**
+	 * 绑定
+	 * @var array
+	 */
 	protected static array $bind = [];
+
+	/**
+	 * 服务端数据
+	 * @var array
+	 */
 	protected static array $serverData = [];
+
+	/**
+	 * 等待响应的请求计数
+	 */
 	protected static int $waitResponseCount = 0;
+
+	/**
+	 * 事件
+	 * @var array|string[]
+	 */
 	protected array $event = ['onWorkerStart', 'onConnect', 'onMessage', 'onClose', 'onError', 'onBufferFull', 'onBufferDrain', 'onWorkerReload', 'onWebSocketConnect'];
 
 	public function __construct(protected array $config = [])

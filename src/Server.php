@@ -8,74 +8,71 @@ use Workerman\Worker;
 abstract class Server
 {
 
-    protected ?Worker $worker;
-    protected array $option = [];
-    protected array $context = [];
+	/**
+	 * Worker实例
+	 * @var Worker|null
+	 */
+	protected ?Worker $worker;
 
-    protected ?string $rootPath;
-    protected ?string $root;
-    protected ?Closure $appInit;
-    protected array $event = ['onWorkerStart', 'onConnect', 'onMessage', 'onClose', 'onError', 'onBufferFull', 'onBufferDrain', 'onWorkerReload', 'onWebSocketConnect'];
+	/**
+	 * 参数
+	 * @var array
+	 */
+	protected array $option = [];
 
-    public function setRootPath($path): void
-    {
-        $this->rootPath = $path;
-    }
+	/**
+	 * 上下文
+	 * @var array
+	 */
+	protected array $context = [];
 
-    public function appInit(Closure $closure): void
-    {
-        $this->appInit = $closure;
-    }
+	/**
+	 * 根目录
+	 * @var string|null
+	 */
+	protected ?string $rootPath = null;
 
-    public function setRoot($path): void
-    {
-        $this->root = $path;
-    }
+	/**
+	 * 根目录
+	 * @var string|null
+	 */
+	protected ?string $root = null;
 
-    public function setStaticOption($name, $value): void
-    {
-        Worker::${$name} = $value;
-    }
+	/**
+	 * 应用初始化
+	 * @var Closure|null
+	 */
+	protected ?Closure $appInit = null;
 
-    /**
-     * 设置参数
-     * @access public
-     * @param array $options 参数
-     * @return void
-     */
-    public function setOptions(array $options): void
-    {
-        // 设置参数
-        if (! empty($options)) {
-            foreach ($options as $key => $val) {
-                $this->worker->$key = $val;
-            }
-        }
-    }
+	/**
+	 * 事件
+	 * @var array|string[]
+	 */
+	protected array $event = ['onWorkerStart', 'onConnect', 'onMessage', 'onClose', 'onError', 'onBufferFull', 'onBufferDrain', 'onWorkerReload', 'onWebSocketConnect'];
 
-    /**
-     * 设置参数
-     * @param string $name
-     * @param $value
-     * @return void
-     */
-    public function setOption(string $name, $value): void
-    {
-        $this->worker->$name = $value;
-    }
+	/**
+	 * 设置参数
+	 * @param string $name
+	 * @param $value
+	 * @return void
+	 */
+	public function setOption(string $name, $value): void
+	{
+		$this->worker->$name = $value;
+	}
 
-    public function start(): void
-    {
-        Worker::runAll();
-    }
+	public function start(): void
+	{
+		Worker::runAll();
+	}
 
-    public function __set($name, $value)
-    {
-        $this->worker->$name = $value;
-    }
+	public function __set($name, $value)
+	{
+		$this->worker->$name = $value;
+	}
 
-    public function __call($method, $args)
-    {
-        call_user_func_array([$this->worker, $method], $args);
-    }
+	public function __call($method, $args)
+	{
+		call_user_func_array([$this->worker, $method], $args);
+	}
 }

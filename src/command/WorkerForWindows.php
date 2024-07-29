@@ -13,7 +13,6 @@ class WorkerForWindows extends Command
 	public function configure(): void
 	{
 		$this->setName('worker:win')
-			->addArgument('server', Argument::REQUIRED, "The server to start. http|ws", 'http')
 			->addArgument('action', Argument::REQUIRED, "start|stop|restart|reload|status", 'start')
 			->setDescription('Starting HTTP|WS Service on Linux System through Workerman');
 	}
@@ -35,6 +34,13 @@ class WorkerForWindows extends Command
 		$servers = [
 			__WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_http.php'
 		];
+
+		// 启动 Ws 服务
+		if (config('worker_ws.enable', false)) {
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_business.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_gateway.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_register.php';
+		}
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
 		foreach (config('worker_process', []) as $processName => $config) {
@@ -141,11 +147,11 @@ if (is_callable('opcache_reset')) {
 }
 
 try{
-	\$app = App()::getInstance()->initialize();
+	\$app = App::getInstance()->initialize();
 			
 	worker_start('$processParam', $configParam);
 	
-	Worker::run();
+	Worker::runAll();
 }catch (\\Throwable \$e){
 	dump(\$e);
 }

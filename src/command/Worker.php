@@ -84,7 +84,13 @@ class Worker extends Command
 	 */
 	protected function initWebSocketService(): void
 	{
-		if (! Config::get('worker_ws.enable')) {
+		$ws_enable = Config::get('worker_ws.enable');
+		if (! $ws_enable) {
+			return;
+		}
+
+		// windows操作系统下无法在一个php文件里初始化多个Worker
+		if (Config::get('worker_http.enable', false) && is_windows()) {
 			return;
 		}
 
