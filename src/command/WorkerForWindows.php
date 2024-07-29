@@ -32,14 +32,14 @@ class WorkerForWindows extends Command
 		}
 
 		$servers = [
-			__WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_http.php'
+			__WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_http.php'
 		];
 
 		// 启动 Ws 服务
 		if (config('worker_ws.enable', false)) {
-			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_business.php';
-			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_gateway.php';
-			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows_start_register.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_gateway.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_register.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_business.php';
 		}
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
