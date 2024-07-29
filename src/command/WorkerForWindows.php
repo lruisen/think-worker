@@ -13,7 +13,7 @@ class WorkerForWindows extends Command
 	public function configure(): void
 	{
 		$this->setName('worker:win')
-			->addArgument('action', Argument::REQUIRED, "start|stop|restart|reload|status", 'start')
+			->addArgument('action', Argument::OPTIONAL, "start|stop|restart|reload|status", 'start')
 			->setDescription('Starting HTTP|WS Service on Linux System through Workerman');
 	}
 
