@@ -17,7 +17,7 @@ class Worker extends Command
 	public function configure(): void
 	{
 		$this->setName('worker')
-			->addArgument('action', Argument::REQUIRED, "start|stop|restart|reload|status", 'start')
+			->addArgument('action', Argument::OPTIONAL, "start|stop|restart|reload|status", 'start')
 			->addOption('daemon', 'd', Option::VALUE_NONE, 'Run the workerman server in daemon mode.')
 			->setDescription('Starting HTTP|WS Service through Workerman');
 	}
