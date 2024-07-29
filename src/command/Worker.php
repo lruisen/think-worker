@@ -32,15 +32,10 @@ class Worker extends Command
 		$this->checkParameters($action);
 		$this->checkExtensions();
 
-		if (! is_windows()) {
-			global $argv;
-			array_shift($argv);
-			array_shift($argv);
-			array_unshift($argv, 'Worker', $action);
-		} elseif ('start' !== $action) {
-			$output->writeln("<error>Not Support action:{$action} on Windows.</error>");
-			exit();
-		}
+		global $argv;
+		array_shift($argv);
+		array_shift($argv);
+		array_unshift($argv, 'Worker', $action);
 
 		// 初始化WebServer服务（http服务）
 		$this->initHttpService();
@@ -89,11 +84,6 @@ class Worker extends Command
 			return;
 		}
 
-		// windows操作系统下无法在一个php文件里初始化多个Worker
-		if (Config::get('worker_http.enable', false) && is_windows()) {
-			return;
-		}
-
 		$worker = new WebSocketService();
 		$worker->init();
 	}
@@ -105,10 +95,6 @@ class Worker extends Command
 	protected function startMonitor(): void
 	{
 		if (! Config::get('worker_process.monitor.constructor.switch', false)) {
-			return;
-		}
-
-		if (is_windows()) {
 			return;
 		}
 
@@ -124,6 +110,11 @@ class Worker extends Command
 	 */
 	protected function checkParameters(string $action): void
 	{
+		if (is_windows()) {
+			$this->output->writeln("<error>Windows does not support command startup. Please run command php think worker:win to run it.</error>");
+			exit(1);
+		}
+
 		if (! in_array($action, ['start', 'stop', 'restart', 'reload', 'status'])) {
 			$this->output->writeln("<error>Invalid argument action:$action, Expected start|stop|restart|reload|status .</error>");
 			exit(1);
@@ -136,11 +127,6 @@ class Worker extends Command
 	 */
 	protected function checkExtensions(): void
 	{
-		// Windows 系统跳转检查
-		if (is_windows()) {
-			return;
-		}
-
 		if (! extension_loaded('pcntl')) {
 			$this->output->writeln("<error>Please install pcntl extension. See https://doc.workerman.net/appendices/install-extension.html </error>");
 			exit(1);
@@ -181,10 +167,6 @@ class Worker extends Command
 	 */
 	public function startOtherProcess(): void
 	{
-		if (is_windows()) {
-			return;
-		}
-
 		foreach (config('worker_process') as $process_name => $config) {
 			if (in_array($process_name, ['queue', 'monitor'])) {
 				continue;
