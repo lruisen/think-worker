@@ -37,15 +37,15 @@ class Worker extends Command
 		array_shift($argv);
 		array_unshift($argv, 'Worker', $action);
 
+
+		// 热更新
+		$this->startMonitor();
+
 		// 初始化WebServer服务（http服务）
 		$this->initHttpService();
 
 		// 初始化WebSocket服务
 		$this->initWebSocketService();
-
-		// 热更新
-		$this->startMonitor();
-
 
 		// 加载其他自定义进程
 		$this->startOtherProcess();
@@ -167,8 +167,11 @@ class Worker extends Command
 	 */
 	public function startOtherProcess(): void
 	{
-		foreach (config('worker_process') as $process_name => $config) {
-			if (in_array($process_name, ['queue', 'monitor'])) {
+		$process = config('worker_process');
+		unset($process['monitor']);
+
+		foreach ($process as $process_name => $config) {
+			if (empty($config['enable'])) {
 				continue;
 			}
 

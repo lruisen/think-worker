@@ -20,7 +20,7 @@ class HttpService extends Server
 	 * 容器
 	 * @var App|null
 	 */
-	protected ?App $app;
+	protected static ?App $app;
 
 	/**
 	 * 监控
@@ -131,14 +131,16 @@ class HttpService extends Server
 
 	public function onMessage(TcpConnection $connection, Request $request): void
 	{
-		$this->app = new App();
+		if (! self::$app) {
+			self::$app = new \ThinkWorker\think\App();
+		}
+		
 		foreach (self::$bind as $key => $class) {
-			$this->app->$key = $class;
+			self::$app->$key = $class;
 		}
 
-		$this->appInit && call_user_func_array($this->appInit, [$this->app]);
+		$this->appInit && call_user_func_array($this->appInit, [self::$app]);
 		$this->initRequest($connection, $request, self::$serverData);
-		$this->app->initialize();
 
 		$path = $request->path() ?: '/';
 		$file = public_path() . urldecode($path);
@@ -159,7 +161,7 @@ class HttpService extends Server
 	 */
 	protected function initRequest(TcpConnection $connection, Request $request, array $server = []): void
 	{
-		$this->app->setRuntimePath(root_path('runtime'));
+		self::$app->setRuntimePath(root_path('runtime'));
 
 		$scriptFilePath = public_path() . 'index.php';
 		$_SERVER = array_merge($server, [
@@ -265,13 +267,13 @@ class HttpService extends Server
 			Monitor::pause();
 		}
 
-		$http = $this->app->http;
+		$http = self::$app->http;
 		$response = $http->run();
 		$content = ob_get_clean();
 
 		ob_start();
 		$response->send();
-		$this->app->http->end($response);
+		self::$app->http->end($response);
 		$content .= ob_get_clean() ?: '';
 
 		$connection->send(new Response($response->getCode(), $response->getHeader(), $content));
