@@ -3,6 +3,7 @@
 namespace ThinkWorker;
 
 use Exception;
+use think\facade\Config;
 use think\helper\Arr;
 use think\queue\Listener;
 use Workerman\Worker;
@@ -40,7 +41,7 @@ class Queue
 			if (str_contains($queue, '@')) {
 				[$queue, $connection] = explode('@', $queue);
 			} else {
-				$connection = null;
+				$connection = Config::get('queue.default');
 			}
 
 			$delay = Arr::get($options, 'delay', 0);

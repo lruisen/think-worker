@@ -40,39 +40,58 @@ return [
 
 	/**
 	 * ---------------------------------------------------------------------
-	 * think-queue队列支持
-	 * 代替think-queue里的最后一步:监听任务并执行,无需另外起进程执行队列
-	 * 如果enable属性设置为false时，需自行执行think-queue的监听已经守护进程执行
-	 * ---------------------------------------------------------------------
-	 */
-	"queue" => [
-		"enable" => true, // 是否开启队列监听并执行，true:开启，false:关闭
-		"handler" => Queue::class,
-		"constructor" => [
-			"workers" => [
-				// 键名是队列名称
-				"default" => [
-					"delay" => 0,  // 延迟执行时间，0为立即执行
-					"sleep" => 3,
-					"tries" => 0, // 队列执行失败后的重试次数
-					"timeout" => 60,  // 进程执行超时时间
-					"count" => 1,  // 进程数量
-				],
-			],
-		]
-	],
-
-	/**
-	 * ---------------------------------------------------------------------
-	 * 定时任务配置
-	 * 代替think-cron任务监听，无需 supervisor 或 系统任务 执行
+	 * 定时任务配置，这里使用的是基于workerman的定时任务程序crontab
+	 * 详情查阅文档 https://www.workerman.net/doc/workerman/components/crontab.html
+	 *
+	 * tasks 参数说明
+	 * 一、任务类，继承父类 \ThinkWorker\crontab\Kernel
+	 *
 	 * ---------------------------------------------------------------------
 	 */
 	"crontab" => [
 		"enable" => true, // 是否开启定时任务，true:开启，false:关闭
 		"handler" => Crontab::class,
-		"constructor" => [],
-		"count" => 1, // 进程数量
+		"constructor" => [
+			"tasks" => [
+				
+			],
+		],
+	],
+
+	/**
+	 * ---------------------------------------------------------------------
+	 * think-queue队列支持
+	 * 代替think-queue里的最后一步:监听任务并执行,无需另外起进程执行队列
+	 * 如果enable属性设置为false时，需自行执行think-queue的监听已经守护进程执行
+	 *
+	 *  workers 参数说明，此处参数等效于think-queue的命令行参数
+	 *  php think queue:listen --queue=default --delay=3 --sleep=3 --tries=0 --timeout=60 --memory=128
+	 *
+	 *  default 等效 --queue=default
+	 *  delay 等效 --delay=3
+	 *  sleep 等效 --sleep=3
+	 *  tries 等效 --tries=0
+	 *  timeout 等效 --timeout=60
+	 *  memory 等效 --memory=128
+	 *
+	 *  如果需要指定驱动，可以使用 "default@connection" 的形式 例如 "default@redis"
+	 * ---------------------------------------------------------------------
+	 */
+	"queue" => [
+		"enable" => false, // 是否开启队列监听并执行，true:开启，false:关闭
+		"handler" => Queue::class,
+		"count" => 1,  // 进程数量
+		"constructor" => [
+			"workers" => [
+				// 键名是队列名称
+				"default" => [
+					"delay" => 0,  // 延迟执行时间，0为立即执行,
+					"sleep" => 3,
+					"tries" => 0, // 队列执行失败后的重试次数
+					"timeout" => 60,  // 进程执行超时时间
+				],
+			],
+		]
 	],
 
 

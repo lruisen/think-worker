@@ -2,17 +2,24 @@
 
 namespace ThinkWorker;
 
-use ThinkWorker\think\App;
+use think\facade\Config;
+use Workerman\Process;
 use Workerman\Worker;
 
 class Crontab
 {
-	public function __construct()
+	public function __construct(
+		protected array $tasks = [],
+	)
 	{
 	}
 
 	public function onWorkerStart(Worker $worker): void
 	{
-		(new App())->console->call('cron:schedule');
+		date_default_timezone_set(Config::get('app.default_timezone', 'Asia/Shanghai'));
+
+		foreach ($this->tasks as $task) {
+			
+		}
 	}
 }

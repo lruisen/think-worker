@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ee046c8fba3d7d14980b2f1c1e71c210",
+    "content-hash": "767211d6164ba82b8a2177c98a501585",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -80,73 +80,6 @@
                 }
             ],
             "time": "2023-12-11T17:09:12+00:00"
-        },
-        {
-            "name": "dragonmantank/cron-expression",
-            "version": "v3.3.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dragonmantank/cron-expression.git",
-                "reference": "adfb1f505deb6384dc8b39804c5065dd3c8c8c0a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dragonmantank/cron-expression/zipball/adfb1f505deb6384dc8b39804c5065dd3c8c8c0a",
-                "reference": "adfb1f505deb6384dc8b39804c5065dd3c8c8c0a",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "require": {
-                "php": "^7.2|^8.0",
-                "webmozart/assert": "^1.0"
-            },
-            "replace": {
-                "mtdowling/cron-expression": "^1.0"
-            },
-            "require-dev": {
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^1.0",
-                "phpstan/phpstan-webmozart-assert": "^1.0",
-                "phpunit/phpunit": "^7.0|^8.0|^9.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Cron\\": "src/Cron/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Tankersley",
-                    "email": "chris@ctankersley.com",
-                    "homepage": "https://github.com/dragonmantank"
-                }
-            ],
-            "description": "CRON for PHP: Calculate the next or previous run date and determine if a CRON expression is due",
-            "keywords": [
-                "cron",
-                "schedule"
-            ],
-            "support": {
-                "issues": "https://github.com/dragonmantank/cron-expression/issues",
-                "source": "https://github.com/dragonmantank/cron-expression/tree/v3.3.3"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/dragonmantank",
-                    "type": "github"
-                }
-            ],
-            "time": "2023-08-10T19:36:49+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -1431,16 +1364,16 @@
         },
         {
             "name": "topthink/think-orm",
-            "version": "v3.0.14",
+            "version": "v3.0.20",
             "source": {
                 "type": "git",
                 "url": "https://github.com/top-think/think-orm.git",
-                "reference": "7b0b8ea6ca5e020217f6ba7ae34d547e148a675b"
+                "reference": "f9fc4f110bbc8ccbf325903ca95ac77fb6523e2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/top-think/think-orm/zipball/7b0b8ea6ca5e020217f6ba7ae34d547e148a675b",
-                "reference": "7b0b8ea6ca5e020217f6ba7ae34d547e148a675b",
+                "url": "https://api.github.com/repos/top-think/think-orm/zipball/f9fc4f110bbc8ccbf325903ca95ac77fb6523e2b",
+                "reference": "f9fc4f110bbc8ccbf325903ca95ac77fb6523e2b",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1458,7 +1391,10 @@
                 "topthink/think-helper": "^3.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^8|^9.5|^10"
+                "phpunit/phpunit": "^9.6|^10"
+            },
+            "suggest": {
+                "ext-mongodb": "provide mongodb support"
             },
             "type": "library",
             "autoload": {
@@ -1486,9 +1422,9 @@
             ],
             "support": {
                 "issues": "https://github.com/top-think/think-orm/issues",
-                "source": "https://github.com/top-think/think-orm/tree/v3.0.14"
+                "source": "https://github.com/top-think/think-orm/tree/v3.0.20"
             },
-            "time": "2023-09-24T13:15:07+00:00"
+            "time": "2024-08-05T09:54:58+00:00"
         },
         {
             "name": "topthink/think-queue",
@@ -1836,17 +1772,17 @@
             "time": "2023-03-08T08:35:38+00:00"
         },
         {
-            "name": "webmozart/assert",
-            "version": "1.11.0",
+            "name": "workerman/crontab",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
-                "url": "https://github.com/webmozarts/assert.git",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991"
+                "url": "https://github.com/walkor/crontab.git",
+                "reference": "b78f1556f2977715b9cb5653129e6d9cf160d966"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/11cb2199493b2f8a3b53e7f19068fc6aac760991",
-                "reference": "11cb2199493b2f8a3b53e7f19068fc6aac760991",
+                "url": "https://api.github.com/repos/walkor/crontab/zipball/b78f1556f2977715b9cb5653129e6d9cf160d966",
+                "reference": "b78f1556f2977715b9cb5653129e6d9cf160d966",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -1856,25 +1792,13 @@
                 ]
             },
             "require": {
-                "ext-ctype": "*",
-                "php": "^7.2 || ^8.0"
-            },
-            "conflict": {
-                "phpstan/phpstan": "<0.12.20",
-                "vimeo/psalm": "<4.6.1 || 4.6.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.5.13"
+                "php": ">=7.0",
+                "workerman/workerman": ">=4.0.20"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.10-dev"
-                }
-            },
             "autoload": {
                 "psr-4": {
-                    "Webmozart\\Assert\\": "src/"
+                    "Workerman\\Crontab\\": "./src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1883,21 +1807,25 @@
             ],
             "authors": [
                 {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
+                    "name": "walkor",
+                    "email": "walkor@workerman.net",
+                    "homepage": "http://www.workerman.net",
+                    "role": "Developer"
                 }
             ],
-            "description": "Assertions to validate method input/output with nice error messages.",
+            "description": "A crontab written in PHP based on workerman",
+            "homepage": "http://www.workerman.net",
             "keywords": [
-                "assert",
-                "check",
-                "validate"
+                "crontab"
             ],
             "support": {
-                "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.11.0"
+                "email": "walkor@workerman.net",
+                "forum": "http://wenda.workerman.net/",
+                "issues": "https://github.com/walkor/workerman/issues",
+                "source": "https://github.com/walkor/crontab",
+                "wiki": "http://doc.workerman.net/"
             },
-            "time": "2022-06-03T18:03:27+00:00"
+            "time": "2022-10-17T01:59:19+00:00"
         },
         {
             "name": "workerman/gateway-worker",
@@ -2027,68 +1955,6 @@
                 }
             ],
             "time": "2024-02-19T02:10:39+00:00"
-        },
-        {
-            "name": "yunwuxin/think-cron",
-            "version": "v3.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/yunwuxin/think-cron.git",
-                "reference": "b54baa2c7a6ad68653d9a1e0a9b22e18ac0bcbe7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/yunwuxin/think-cron/zipball/b54baa2c7a6ad68653d9a1e0a9b22e18ac0bcbe7",
-                "reference": "b54baa2c7a6ad68653d9a1e0a9b22e18ac0bcbe7",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
-            },
-            "require": {
-                "dragonmantank/cron-expression": "^3.0",
-                "nesbot/carbon": "^2.28",
-                "symfony/process": ">=4.2",
-                "topthink/framework": "^6.0 || ^8.0"
-            },
-            "require-dev": {
-                "topthink/think-swoole": "^4.0"
-            },
-            "type": "library",
-            "extra": {
-                "think": {
-                    "config": {
-                        "cron": "src/config.php"
-                    },
-                    "services": [
-                        "yunwuxin\\cron\\Service"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "yunwuxin\\cron\\": "src/cron"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "yunwuxin",
-                    "email": "448901948@qq.com"
-                }
-            ],
-            "description": "计划任务",
-            "support": {
-                "issues": "https://github.com/yunwuxin/think-cron/issues",
-                "source": "https://github.com/yunwuxin/think-cron/tree/v3.0.7"
-            },
-            "time": "2023-08-11T12:34:39+00:00"
         }
     ],
     "packages-dev": [
