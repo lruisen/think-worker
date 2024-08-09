@@ -44,7 +44,7 @@ class WorkerForWindows extends Command
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
 		foreach (config('worker_process', []) as $processName => $config) {
-			if ('queue' === $processName) {
+			if (empty($config['enable'])) {
 				continue;
 			}
 

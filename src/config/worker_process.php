@@ -1,5 +1,6 @@
 <?php
 
+use ThinkWorker\Crontab;
 use ThinkWorker\Monitor;
 use ThinkWorker\Queue;
 
@@ -59,6 +60,19 @@ return [
 				],
 			],
 		]
+	],
+
+	/**
+	 * ---------------------------------------------------------------------
+	 * 定时任务配置
+	 * 代替think-cron任务监听，无需 supervisor 或 系统任务 执行
+	 * ---------------------------------------------------------------------
+	 */
+	"crontab" => [
+		"enable" => true, // 是否开启定时任务，true:开启，false:关闭
+		"handler" => Crontab::class,
+		"constructor" => [],
+		"count" => 1, // 进程数量
 	],
 
 
