@@ -37,9 +37,10 @@
         "ThinkWorker\\Service"
       ],
       "config": {
-        "worker_process": "src/config/worker_process.php",
+        "worker_ws": "src/config/worker_ws.php",
         "worker_http": "src/config/worker_http.php",
-        "worker_ws": "src/config/worker_ws.php"
+        "worker_process": "src/config/worker_process.php",
+        "worker_crontab": "src/config/worker_crontab.php"
       }
     }
   }

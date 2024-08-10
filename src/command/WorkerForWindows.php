@@ -43,6 +43,14 @@ class WorkerForWindows extends Command
 		}
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
+		
+		// 加载定时任务
+		if (config('worker_crontab.enable', false)) {
+			foreach (config('worker_crontab.processes') as $process_name => $config) {
+				$servers[] = $this->write_process_file($runtimeProcessPath, $process_name);
+			}
+		}
+
 		foreach (config('worker_process', []) as $processName => $config) {
 			if (empty($config['enable'])) {
 				continue;

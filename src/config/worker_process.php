@@ -1,6 +1,5 @@
 <?php
 
-use ThinkWorker\Crontab;
 use ThinkWorker\Monitor;
 use ThinkWorker\Queue;
 
@@ -35,27 +34,6 @@ return [
 			// 'memory_limit' => '102M', // 默认取值为 ini_get('memory_limit') 的 80%，你也可以手动配置，单位可以为：G、M、K
 			'memory_monitor_interval' => 60, // 内存检测时间间隔（秒）
 		]
-	],
-
-
-	/**
-	 * ---------------------------------------------------------------------
-	 * 定时任务配置，这里使用的是基于workerman的定时任务程序crontab
-	 * 详情查阅文档 https://www.workerman.net/doc/workerman/components/crontab.html
-	 *
-	 * tasks 参数说明
-	 * 一、任务类，继承父类 \ThinkWorker\crontab\Kernel
-	 *
-	 * ---------------------------------------------------------------------
-	 */
-	"crontab" => [
-		"enable" => true, // 是否开启定时任务，true:开启，false:关闭
-		"handler" => Crontab::class,
-		"constructor" => [
-			"tasks" => [
-				
-			],
-		],
 	],
 
 	/**

@@ -47,6 +47,9 @@ class Worker extends Command
 		// 初始化WebSocket服务
 		$this->initWebSocketService();
 
+		// 加载定时任务
+		$this->initCrontab();
+
 		// 加载其他自定义进程
 		$this->startOtherProcess();
 
@@ -175,6 +178,22 @@ class Worker extends Command
 				continue;
 			}
 
+			worker_start($process_name, $config);
+		}
+	}
+
+	/**
+	 * 初始化定时任务
+	 * @return void
+	 */
+	public function initCrontab(): void
+	{
+		$crontab = config('worker_crontab', []);
+		if (empty($crontab['enable'])) {
+			return;
+		}
+
+		foreach ($crontab['processes'] as $process_name => $config) {
 			worker_start($process_name, $config);
 		}
 	}
