@@ -145,7 +145,8 @@ namespace think;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use Workerman\Worker;
+use Workerman\\Worker;
+use ThinkWorker\\think\\App;
 
 ini_set('display_errors', 'on');
 error_reporting(E_ALL);
@@ -155,7 +156,7 @@ if (is_callable('opcache_reset')) {
 }
 
 
-\$app = \ThinkWorker\think\App::getInstance()->initialize();
+\$app = App::getInstance()->initialize();
 		
 worker_start('$processParam', $configParam);
 
