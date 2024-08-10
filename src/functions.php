@@ -48,7 +48,10 @@ if (! function_exists('worker_start')) {
 
 		$worker->onWorkerStart = function ($worker) use ($config) {
 			// 初始化 App 容器
-			$app = App::getInstance()->initialize();
+			$app = App::getInstance();
+			if (! $app->initialized()) {
+				$app->initialize();
+			}
 
 			if (empty($config['handler'])) {
 				return;

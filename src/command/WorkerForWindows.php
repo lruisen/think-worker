@@ -13,7 +13,7 @@ class WorkerForWindows extends Command
 	public function configure(): void
 	{
 		$this->setName('worker:win')
-			->addArgument('action', Argument::OPTIONAL, "start|stop|restart|reload|status", 'start')
+			->addArgument('action', Argument::OPTIONAL, "start", 'start')
 			->setDescription('Starting HTTP|WS Service on Linux System through Workerman');
 	}
 
@@ -43,11 +43,11 @@ class WorkerForWindows extends Command
 		}
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
-		
+
 		// 加载定时任务
 		if (config('worker_crontab.enable', false)) {
 			foreach (config('worker_crontab.processes') as $process_name => $config) {
-				$servers[] = $this->write_process_file($runtimeProcessPath, $process_name);
+				$servers[] = $this->write_process_file($runtimeProcessPath, $process_name, 'worker_crontab.processes');
 			}
 		}
 
@@ -56,7 +56,7 @@ class WorkerForWindows extends Command
 				continue;
 			}
 
-			$servers[] = $this->write_process_file($runtimeProcessPath, $processName);
+			$servers[] = $this->write_process_file($runtimeProcessPath, $processName, 'worker_process');
 		}
 
 		$resource = $this->open_processes($servers);
@@ -73,7 +73,7 @@ class WorkerForWindows extends Command
 	protected function checkParameters(string $action): void
 	{
 		if (! in_array($action, ['start', 'stop', 'restart', 'reload', 'status'])) {
-			$this->output->writeln("<error>Invalid argument action:$action, Expected start|stop|restart|reload|status .</error>");
+			$this->output->writeln("<error>Invalid argument action:$action, Expected start .</error>");
 			exit(1);
 		}
 	}
@@ -134,10 +134,10 @@ class WorkerForWindows extends Command
 		return $resource;
 	}
 
-	protected function write_process_file($runtimeProcessPath, $processName): string
+	protected function write_process_file($runtimeProcessPath, $processName, $config): string
 	{
 		$processParam = $processName;
-		$configParam = "\$app->config->get('worker_process.$processName')";
+		$configParam = "\$app->config->get('$config.$processName')";
 
 		$fileContent = <<<EOF
 <?php
@@ -154,15 +154,13 @@ if (is_callable('opcache_reset')) {
     opcache_reset();
 }
 
-try{
-	\$app = App::getInstance()->initialize();
-			
-	worker_start('$processParam', $configParam);
-	
-	Worker::runAll();
-}catch (\\Throwable \$e){
-	dump(\$e);
-}
+
+\$app = \ThinkWorker\think\App::getInstance()->initialize();
+		
+worker_start('$processParam', $configParam);
+
+Worker::runAll();
+
 EOF;
 		$processFile = sprintf("%sstart_%s.php", $runtimeProcessPath, $processName);
 		file_put_contents($processFile, $fileContent);
