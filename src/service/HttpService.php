@@ -20,7 +20,7 @@ class HttpService extends Server
 	 * 容器
 	 * @var App|null
 	 */
-	protected static ?App $app;
+	protected static ?App $app = null;
 
 	/**
 	 * 监控
@@ -116,9 +116,9 @@ class HttpService extends Server
 		if (empty(self::$bind['db'])) {
 			try {
 				Db::execute("SELECT 1");
-				$app = App::getInstance();
-				self::$bind['db'] = $app->db;
-				self::$bind['cache'] = $app->cache;
+				self::$app = \ThinkWorker\think\App::getInstance();
+				self::$bind['db'] = self::$app->db;
+				self::$bind['cache'] = self::$app->cache;
 			} catch (Throwable $e) {
 
 			}
@@ -132,9 +132,9 @@ class HttpService extends Server
 	public function onMessage(TcpConnection $connection, Request $request): void
 	{
 		if (! self::$app) {
-			self::$app = new \ThinkWorker\think\App();
+			self::$app = \ThinkWorker\think\App::getInstance();
 		}
-		
+
 		foreach (self::$bind as $key => $class) {
 			self::$app->$key = $class;
 		}
