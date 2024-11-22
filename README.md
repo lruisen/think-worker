@@ -80,34 +80,68 @@ websocket.onmessage = function (evt) {
 };
 ```
 
-### Windows
+## 队列
 
-```shell
-php think worker:win start
+配置文件位于 `config/worker_process`
+以下配置代替think-queue里的最后一步:监听任务并执行,无需另外起进程执行队列
+
+```php
+"queue" => [
+    "enable" => false, // 是否开启队列监听并执行，true:开启，false:关闭
+    "handler" => Queue::class,
+    "count" => 1,  // 进程数量
+    "constructor" => [
+        "workers" => [
+            // 键名是队列名称
+            "default" => [
+                "delay" => 0,  // 延迟执行时间，0为立即执行,
+                "sleep" => 3,
+                "tries" => 0, // 队列执行失败后的重试次数
+                "timeout" => 60,  // 进程执行超时时间
+            ],
+        ],
+    ]
+],
 ```
 
-> 热更新配置在 `/config/worker_process/`中，APP_DEBUG = true 模式下自动开启热更新
+> 具体配置参数请参考配置文件
 
-### Linux/Mac
+## 定时任务
 
-```shell
-php think worker start           #以调试模式启动服务
-php think worker start -d        #以守护进程模式启动服务
-php think worker stop            #停止服务
-php think worker restart         #重启服务
-php think worker reload          #柔性重启服务
-php think worker status          #查看服务状态
+配置文件位于 `config/worker_crontab`
+> [基于workerman的定时任务程序crontab](https://www.workerman.net/doc/workerman/components/crontab.html)
+>
+> 具体配置参数请参考配置文件
+
+## 支持`symfony/var-dumper`
+
+> 中间件内容从 [top-think/think-swoole](https://github.com/top-think/think-swoole) 中摘抄而来
+
+由于应用是通过php cli启动的，所以默认`symfony/var-dumper`会将调试信息打印在控制台, 通过配置中间件来支持将调试信息输出在网页上
+如下是直接在配置在全局中间件上，也可以在路由定义的时候配置
+
+```php
+// app/middleware.php
+
+<?php
+// 全局中间件定义文件
+return [
+    // 全局请求缓存
+    // \think\middleware\CheckRequestCache::class,
+    // 多语言加载
+    // \think\middleware\LoadLangPack::class,
+    // Session初始化
+    //\think\middleware\SessionInit::class,
+    \ThinkWorker\middleware\InteractsWithVarDumper::class,
+];
 ```
-
-> 注意：命令权限不足请自行加sudo
 
 ## 常驻内存须知
 
 ### php cli下不支持的特性
 
 1. Cookie和Session：我们也建议您无必要不使用，通常无需担心。
-2. move_uploaded_file：框架的文件上传类中已经兼容rename进行上传文件的移动。
-3. header：请使用TP的return Response()->header()方案设置响应头，如果是SSE等比较特别的，请使用特定格式输出对应所需的响应头内容。
+2. header：请使用TP的return Response()->header()方案设置响应头，如果是SSE等比较特别的，请使用特定格式输出对应所需的响应头内容。
 
 ### 对比传统PHP应用
 

@@ -2,11 +2,11 @@
 
 namespace ThinkWorker\service;
 
-use think\App;
 use think\facade\Config;
 use think\facade\Db;
 use ThinkWorker\Monitor;
 use ThinkWorker\Server;
+use ThinkWorker\think\Application;
 use Throwable;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
@@ -18,9 +18,9 @@ class HttpService extends Server
 {
 	/**
 	 * 容器
-	 * @var App|null
+	 * @var Application
 	 */
-	protected static ?App $app = null;
+	protected Application $app;
 
 	/**
 	 * 监控
@@ -57,56 +57,21 @@ class HttpService extends Server
 	 */
 	protected static int $waitResponseCount = 0;
 
-	/**
-	 * 事件
-	 * @var array|string[]
-	 */
-	protected array $event = ['onWorkerStart', 'onConnect', 'onMessage', 'onClose', 'onError', 'onBufferFull', 'onBufferDrain', 'onWorkerReload', 'onWebSocketConnect'];
-
-	public function __construct(protected array $config = [])
-	{
-		if (empty($this->config)) {
-			$this->config = Config::get('worker_http');
-		}
-
-		$listen = sprintf('%s://%s:%s', 'http', $this->config['option']['host'] ?? '0.0.0.0', $this->config['option']['port'] ?? '2356');
-		$this->worker = new Worker($listen, $this->config['context'] ?? []);
-
-		if (empty($this->config['option']['pidFile'])) {
-			$this->config['option']['pidFile'] = runtime_path('worker') . 'worker_http.pid';
-		}
-
-		// 避免PID混乱
-		$this->config['option']['pidFile'] .= sprintf('_%s', $this->config['option']['port']);
-	}
-
-	public function init(): static
-	{
-		foreach ($this->config['option'] as $key => $value) {
-			if (in_array($key, ['protocol', 'ip', 'port'])) continue;
-
-			if (in_array($key, ['stdoutFile', 'daemonize', 'pidFile', 'logFile'])) {
-				Worker::${$key} = $value;
-			} else {
-				$this->worker->$key = $value;
-			}
-		}
-
-		foreach ($this->event as $event) {
-			if (method_exists($this, $event)) {
-				$this->worker->$event = [$this, $event];
-			}
-		}
-
-		return $this;
-	}
-
 	public function onWorkerStart(Worker $worker): void
 	{
-		$this->lastMtime = time();
-
 		self::$bind['worker'] = $worker;
 		self::$serverData = $_SERVER;
+
+		$this->app = new Application();
+		$this->app->setRuntimePath(root_path('runtime'));
+
+		$this->lastMtime = time();
+
+		$this->app->workerman = $worker;
+
+		$this->appInit && call_user_func_array($this->appInit, [$this->app]);
+
+		$this->app->initialize();
 
 		if (empty(self::$monitor_config)) {
 			self::$monitor_config = Config::get('worker_process.monitor.constructor');
@@ -116,9 +81,8 @@ class HttpService extends Server
 		if (empty(self::$bind['db'])) {
 			try {
 				Db::execute("SELECT 1");
-				self::$app = \ThinkWorker\think\App::getInstance();
-				self::$bind['db'] = self::$app->db;
-				self::$bind['cache'] = self::$app->cache;
+				self::$bind['db'] = $this->app->db;
+				self::$bind['cache'] = $this->app->cache;
 			} catch (Throwable $e) {
 
 			}
@@ -131,16 +95,13 @@ class HttpService extends Server
 
 	public function onMessage(TcpConnection $connection, Request $request): void
 	{
-		if (! self::$app) {
-			self::$app = \ThinkWorker\think\App::getInstance();
-		}
-
 		foreach (self::$bind as $key => $class) {
-			self::$app->$key = $class;
+			$this->app->$key = $class;
 		}
 
-		$this->appInit && call_user_func_array($this->appInit, [self::$app]);
-		$this->initRequest($connection, $request, self::$serverData);
+		$this->app->beginTime = microtime(true);
+		$this->app->beginMem = memory_get_usage();
+		$this->app->request->reinitialize($this->app, $connection, $request);
 
 		$path = $request->path() ?: '/';
 		$file = public_path() . urldecode($path);
@@ -150,59 +111,6 @@ class HttpService extends Server
 		} else {
 			$this->sendRequestToController($connection);
 		}
-	}
-
-	/**
-	 * 初始化请求参数
-	 * @param TcpConnection $connection
-	 * @param Request $request
-	 * @param array $server
-	 * @return void
-	 */
-	protected function initRequest(TcpConnection $connection, Request $request, array $server = []): void
-	{
-		self::$app->setRuntimePath(root_path('runtime'));
-
-		$scriptFilePath = public_path() . 'index.php';
-		$_SERVER = array_merge($server, [
-			'QUERY_STRING' => $request->queryString(),
-			'REQUEST_TIME' => time(),
-			'REQUEST_METHOD' => $request->method(),
-			'REQUEST_URI' => $request->uri(),
-			'SERVER_NAME' => $request->host(true),
-			'SERVER_PROTOCOL' => 'HTTP/' . $request->protocolVersion(),
-			'SERVER_ADDR' => $connection->getLocalIp(),
-			'SERVER_PORT' => $connection->getLocalPort(),
-			'REMOTE_ADDR' => $connection->getRemoteIp(),
-			'REMOTE_PORT' => $connection->getRemotePort(),
-			'SCRIPT_FILENAME' => $scriptFilePath,
-			'SCRIPT_NAME' => DIRECTORY_SEPARATOR . pathinfo($scriptFilePath, PATHINFO_BASENAME),
-			'DOCUMENT_ROOT' => dirname($scriptFilePath),
-			'PATH_INFO' => $request->path(),
-			'SERVER_SOFTWARE' => 'WorkerMan Development Server',
-		]);
-
-		$headers = $request->header();
-		foreach ($headers as $key => $item) {
-			$hKey = str_replace('-', '_', $key);
-			if ($hKey == 'content_type') {
-				$_SERVER['CONTENT_TYPE'] = $item;
-				continue;
-			}
-
-			if ($hKey == 'content_length') {
-				$_SERVER['CONTENT_LENGTH'] = $item;
-				continue;
-			}
-
-			$hKey = strtoupper(str_starts_with($hKey, 'HTTP_') ? $hKey : 'HTTP_' . $hKey);
-			$_SERVER[$hKey] = $item;
-		}
-
-		$_GET = $request->get();
-		$_POST = $request->post();
-		$_FILES = $request->file();
-		$_REQUEST = array_merge($_REQUEST, $_GET, $_POST);
 	}
 
 	/**
@@ -268,13 +176,20 @@ class HttpService extends Server
 			Monitor::pause();
 		}
 
-		$http = self::$app->http;
+		// 避免输出到命令行窗口
+		while (ob_get_level() > 1) {
+			ob_end_clean();
+		}
+
+		ob_start();
+
+		$http = $this->app->http;
 		$response = $http->run();
 		$content = ob_get_clean();
 
 		ob_start();
 		$response->send();
-		self::$app->http->end($response);
+		$this->app->http->end($response);
 		$content .= ob_get_clean() ?: '';
 
 		$connection->send(new Response($response->getCode(), $response->getHeader(), $content));

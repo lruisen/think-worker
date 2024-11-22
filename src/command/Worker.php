@@ -8,7 +8,6 @@ use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\facade\Config;
-use ThinkWorker\service\HttpService;
 use ThinkWorker\service\WebSocketService;
 use Workerman\Worker as WorkerManWorker;
 
@@ -37,6 +36,8 @@ class Worker extends Command
 		array_shift($argv);
 		array_unshift($argv, 'Worker', $action);
 
+		// 设置 workerman 全局静态属性
+		$this->setStaticOptions();
 
 		// 热更新
 		$this->startMonitor();
@@ -63,6 +64,16 @@ class Worker extends Command
 	}
 
 	/**
+	 * 设置 workerman 全局静态属性
+	 * @return void
+	 */
+	protected function setStaticOptions(): void
+	{
+		WorkerManWorker::$logFile = sprintf('%s_workerman.pid', runtime_path()); // 进程ID存储位置
+		WorkerManWorker::$pidFile = sprintf('%s%s.log', runtime_path('workerman'), date('Y-m-d')); // 进程ID存储位置
+	}
+
+	/**
 	 * 初始化 HttpService
 	 * @return void
 	 */
@@ -72,8 +83,7 @@ class Worker extends Command
 			return;
 		}
 
-		$worker = new HttpService();
-		$worker->init();
+		worker_start('http', Config::get('worker_http'));
 	}
 
 	/**

@@ -1,10 +1,5 @@
 <?php
 
-$logFile = sprintf('%s%s.log', runtime_path('worker/log'), date('Y-m-d'));
-if (! is_dir(dirname($logFile))) {
-	mkdir(dirname($logFile), 0755, true);
-}
-
 $register = [
 	'ip' => '127.0.0.1',
 	'port' => '1260',
@@ -41,7 +36,6 @@ return [
 	// Worker的参数（支持所有配置项）
 	'option' => [
 		'pidFile' => sprintf('%sws.pid', runtime_path('worker')), // 进程ID存储位置
-		'logFile' => $logFile, // 日志存储位置
 	],
 
 	// 网关(Gateway)上下文选项

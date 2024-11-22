@@ -5,14 +5,13 @@ namespace think;
 
 require_once __DIR__ . '/../../../../autoload.php';
 
-use ThinkWorker\service\HttpService;
+use ThinkWorker\think\Application;
 use Workerman\Worker;
 
-App::getInstance()->initialize();
+Application::getInstance()->initialize();
 
 if (config('worker_http.enable', false)) {
-	$worker = new HttpService();
-	$worker->init();
+	worker_start('http_service', config('worker_http'));
 
 	Worker::runAll();
 }

@@ -1,6 +1,6 @@
 <?php
 
-use ThinkWorker\think\App;
+use think\Container;
 use Workerman\Worker;
 
 if (! function_exists('cpu_count')) {
@@ -47,22 +47,16 @@ if (! function_exists('worker_start')) {
 		}
 
 		$worker->onWorkerStart = function ($worker) use ($config) {
-			// 初始化 App 容器
-			$app = App::getInstance();
-			if (! $app->initialized()) {
-				$app->initialize();
-			}
-
 			if (empty($config['handler'])) {
 				return;
 			}
 
 			if (! class_exists($config['handler'])) {
-				echo "process error: class {$config['handler']} not exists\r\n";
+				dump("process error: class {$config['handler']} not exists\r\n");
 				return;
 			}
 
-			$instance = $app->make($config['handler'], $config['constructor'] ?? []);
+			$instance = Container::getInstance()->make($config['handler'], $config['constructor'] ?? []);
 			worker_bind_events($worker, $instance);
 		};
 	}

@@ -44,6 +44,14 @@ class WorkerForWindows extends Command
 
 		$runtimeProcessPath = $this->getRuntimeProcessPath();
 
+		// 启动 Ws 服务
+		if (config('worker_ws.enable', false)) {
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_gateway.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_register.php';
+			$servers[] = __WT_PKG__ . DIRECTORY_SEPARATOR . 'windows/start_business.php';
+		}
+
+
 		// 加载定时任务
 		if (config('worker_crontab.enable', false)) {
 			foreach (config('worker_crontab.processes') as $process_name => $config) {
@@ -146,7 +154,7 @@ namespace think;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Workerman\\Worker;
-use ThinkWorker\\think\\App;
+use ThinkWorker\\think\\Application;
 
 ini_set('display_errors', 'on');
 error_reporting(E_ALL);
@@ -156,7 +164,7 @@ if (is_callable('opcache_reset')) {
 }
 
 
-\$app = App::getInstance()->initialize();
+\$app = Application::getInstance()->initialize();
 		
 worker_start('$processParam', $configParam);
 

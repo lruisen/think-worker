@@ -6,9 +6,10 @@ namespace think;
 require_once __DIR__ . '/../../../../autoload.php';
 
 use GatewayWorker\BusinessWorker;
+use ThinkWorker\think\Application;
 use Workerman\Worker;
 
-App::getInstance()->initialize();
+Application::getInstance()->initialize();
 
 if (config('worker_ws.enable', false)) {
 	$config = config('worker_ws');
