@@ -31,11 +31,6 @@ class Worker extends Command
 		$this->checkParameters($action);
 		$this->checkExtensions();
 
-		global $argv;
-		array_shift($argv);
-		array_shift($argv);
-		array_unshift($argv, 'Worker', $action);
-
 		// 设置 workerman 全局静态属性
 		$this->setStaticOptions();
 
