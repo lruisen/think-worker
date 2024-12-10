@@ -1,34 +1,29 @@
 <?php
 
-namespace ThinkWorker\service;
+namespace ThinkWorker\Handlers;
 
 use GatewayWorker\BusinessWorker;
 use GatewayWorker\Gateway;
 use GatewayWorker\Register;
 use think\facade\Config;
-use ThinkWorker\Server;
 use Workerman\Worker;
 
-class WebSocketService extends Server
+class WebSocketHandle
 {
 	public function __construct(protected array $config = [])
 	{
 		if (empty($this->config)) {
 			$this->config = Config::get('worker_ws');
 		}
-
-		// 避免pid混乱
-		$this->config['option']['pidFile'] .= '_' . $this->config['gateway']['port'];
 	}
 
-	public function init(): static
+	public function onWorkerStart(): void
 	{
-		// 初始化 WebSocket 服务
 		$this->initBusiness();
-		$this->initGateway();
-		$this->initRegister();
 
-		return $this;
+		$this->initGateway();
+
+		$this->initRegister();
 	}
 
 	protected function initBusiness(): void

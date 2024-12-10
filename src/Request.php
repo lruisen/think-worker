@@ -1,6 +1,6 @@
 <?php
 
-namespace ThinkWorker\think;
+namespace ThinkWorker;
 
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as WorkerRequest;
@@ -21,7 +21,7 @@ class Request extends \think\Request
 	{
 		return $this->getInput();
 	}
-	
+
 	/**
 	 * 重新初始化 Request 类
 	 * @access public

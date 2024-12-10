@@ -1,17 +1,16 @@
 <?php
 
-namespace ThinkWorker\service;
+namespace ThinkWorker\Handlers;
 
 use GatewayWorker\BusinessWorker;
 use think\db\exception\PDOException;
 use think\facade\App;
 use think\facade\Config;
 use think\facade\Db;
-use ThinkWorker\Monitor;
+use ThinkWorker\WorkerWsApp;
 
 class HandleBusinessEvents
 {
-
 	/**
 	 * 文件监听配置
 	 */

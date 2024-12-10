@@ -1,12 +1,19 @@
 <?php
 
+use ThinkWorker\Handlers\WebSocketHandle;
+
 $register = [
 	'ip' => '127.0.0.1',
 	'port' => '1260',
 ];
 
 return [
-	'enable' => false, // 是否启用 ws 服务
+	// 是否启用 ws 服务
+	'enable' => false,
+
+	// Ws 服务处理器
+	'handler' => WebSocketHandle::class,
+
 	// 注册(Register)服务参数
 	'register' => $register,
 
@@ -27,16 +34,14 @@ return [
 
 	// 业务(Business)服务参数
 	'business' => [
-		'name' => 'WebSocketBusiness',
 		'count' => 1,
-		'eventHandler' => 'ThinkWorker\\service\\HandleBusinessEvents',
+		'name' => 'WebSocketBusiness',
+		'eventHandler' => 'ThinkWorker\\Handlers\\HandleBusinessEvents',
 		'registerAddress' => "{$register['ip']}:{$register['port']}",
 	],
 
 	// Worker的参数（支持所有配置项）
-	'option' => [
-		'pidFile' => sprintf('%sws.pid', runtime_path('worker')), // 进程ID存储位置
-	],
+	'option' => [],
 
 	// 网关(Gateway)上下文选项
 	'gatewayContext' => [],

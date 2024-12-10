@@ -1,13 +1,13 @@
 <?php
 
-namespace ThinkWorker\middleware;
+namespace ThinkWorker\Middlewares;
 
 use Closure;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\HtmlDumper;
 use Symfony\Component\VarDumper\VarDumper;
 use think\Response;
-use ThinkWorker\think\Request;
+use ThinkWorker\Request;
 
 class InteractsWithVarDumper
 {

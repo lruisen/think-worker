@@ -1,6 +1,6 @@
 <?php
 
-namespace ThinkWorker\think;
+namespace ThinkWorker;
 
 use think\App;
 use Workerman\Worker;
@@ -11,7 +11,6 @@ use Workerman\Worker;
  */
 class Application extends App
 {
-
 	public ?Worker $workerman = null;
 
 	public function __construct(string $rootPath = '')
@@ -24,12 +23,9 @@ class Application extends App
 		parent::__construct($rootPath);
 	}
 
-	/**
-	 * 是否运行在命令行下
-	 * @return bool
-	 */
 	public function runningInConsole(): bool
 	{
 		return false;
 	}
+
 }

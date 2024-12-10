@@ -1,10 +1,13 @@
 <?php
 
-use ThinkWorker\service\HttpService;
+use ThinkWorker\Handlers\HttpWorkerHandle;
 
 return [
-	'enable' => true, // 是否启用 http 服务
-	'handler' => HttpService::class,
+	// 是否启用 http 服务，此参数只在  php think worker 命令下生效
+	'enable' => true,
+
+	// Http 服务处理器
+	'handler' => HttpWorkerHandle::class,
 
 	// Worker的参数（支持所有配置项）
 	'protocol' => 'http', // 协议，支持 tcp udp unix http websocket text

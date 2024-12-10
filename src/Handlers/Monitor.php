@@ -1,6 +1,6 @@
 <?php
 
-namespace ThinkWorker;
+namespace ThinkWorker\Handlers;
 
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -11,11 +11,10 @@ use Workerman\Worker;
 
 class Monitor
 {
-
 	/**
 	 * @var string
 	 */
-	public static string $lockFile = __DIR__ . '/../../../../runtime/monitor.lock';
+	public static string $lockFile = __DIR__ . '/../../../../../runtime/monitor.lock';
 
 	public function __construct(protected array $options = [])
 	{

@@ -1,6 +1,6 @@
 <?php
 
-namespace ThinkWorker;
+namespace ThinkWorker\Handlers;
 
 use Exception;
 use think\facade\Config;
@@ -8,13 +8,8 @@ use think\helper\Arr;
 use think\queue\Listener;
 use Workerman\Worker;
 
-/**
- * Class Queue
- * @package ThinkWorker
- */
-class Queue
+class QueueHandle
 {
-
 	protected ?Listener $listener = null;
 
 	/**

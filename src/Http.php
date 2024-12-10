@@ -1,6 +1,6 @@
 <?php
 
-namespace ThinkWorker\think;
+namespace ThinkWorker;
 
 use think\event\RouteLoaded;
 
@@ -9,7 +9,6 @@ class Http extends \think\Http
 	protected function loadMiddleware(): void
 	{
 		if (is_file($this->app->getBasePath() . 'middleware.php')) {
-			// Change include to include_once OnlyOne
 			$middleware = include_once $this->app->getBasePath() . 'middleware.php';
 			if (is_array($middleware)) {
 				$this->app->middleware->import($middleware);
@@ -24,7 +23,6 @@ class Http extends \think\Http
 		if (is_dir($routePath)) {
 			$files = glob($routePath . '*.php');
 			foreach ($files as $file) {
-				// Change include to include_once
 				include_once $file;
 			}
 		}
