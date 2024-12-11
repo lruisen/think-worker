@@ -51,35 +51,59 @@ trait WorkerTrait
 
 	/**
 	 * 开启windows服务
-	 * @param string $conf_file_name 配置文件名称
+	 * $config 配置格式：
+	 * 1. 配置文件名称  worker_http
+	 * 2. 配置文件数组
+	 * [
+	 *        ['worker_http'],
+	 *        ['worker_ws'],
+	 *        ['worker_process', 'monitor'],
+	 * ]
+	 * @param string|array $config 配置文件名称,或配置文件数组
 	 * @param ?string $firm 数组选项
 	 * @return void
 	 */
-	protected function startWindowsWorker(string $conf_file_name, string $firm = null): void
+	protected function startWindowsWorker(string|array $config, string $firm = null): void
 	{
 		$servers = [];
 
-		$this->startMonitor($servers);
+		if (is_array($config)) {
+			foreach ($config as $item) {
+				$servers[] = $this->writeProcessFile(...$item);
+			}
+		} else {
+			$servers[] = $this->writeProcessFile($config, $firm);
+		}
 
-		$servers[] = $this->writeProcessFile($conf_file_name, $firm);
+		$this->runInWindows($servers);
+	}
 
+	/**
+	 * 在windows 中运行服务
+	 * @param array $servers 文件路径数组
+	 * @return void
+	 */
+	public function runInWindows(array $servers): void
+	{
+		$this->getMonitor($servers);
 		$resource = $this->open_processes($servers);
 
 		$this->windowMonitor($resource, $servers);
 	}
 
-	protected function startMonitor(array &$servers = []): void
+	/**
+	 * 获取 windows 下监控文件服务
+	 * @param array $servers
+	 * @return void
+	 */
+	protected function getMonitor(array &$servers = []): void
 	{
 		$options = $this->app->config->get('worker_process.monitor.constructor');
 		if (empty($options['switch'])) {
 			return;
 		}
 
-		if (! is_windows()) {
-			worker_start('monitorWorker', $options);
-		} else {
-			$servers[] = $this->writeProcessFile('monitor', 'worker_process');
-		}
+		$servers[] = $this->writeProcessFile('worker_process', 'monitor');
 	}
 
 	/**
@@ -124,6 +148,20 @@ trait WorkerTrait
 	}
 
 	/**
+	 * 获取 windows 运行脚本目录
+	 * @return string
+	 */
+	protected function getRuntimePath(): string
+	{
+		$runtimeProcessPath = runtime_path('windows');
+		if (! is_dir($runtimeProcessPath)) {
+			mkdir($runtimeProcessPath, 0755, true);
+		}
+
+		return $runtimeProcessPath;
+	}
+
+	/**
 	 * 生成进程启动文件
 	 * @param string $processName 配置文件名称
 	 * @param string $firm 配置文件 Key 值
@@ -131,7 +169,7 @@ trait WorkerTrait
 	 */
 	protected function writeProcessFile(string $processName, string $firm = ''): string
 	{
-		$processParam = $processName;
+		$processParam = $firm ?: $processName;
 		$configParam = $firm ? "config('$processName.$firm')" : "config('$processName')";
 
 		$fileContent = <<<EOF
@@ -157,15 +195,30 @@ Worker::runAll();
 
 EOF;
 
-		$runtimeProcessPath = runtime_path('windows');
-		if (! is_dir($runtimeProcessPath)) {
-			mkdir($runtimeProcessPath, 0755, true);
-		}
-
-		$processFile = sprintf("%sstart_%s.php", $runtimeProcessPath, $processName);
+		$runtimeProcessPath = $this->getRuntimePath();
+		$processFile = sprintf("%sstart_%s.php", $runtimeProcessPath, $processParam);
 
 		file_put_contents($processFile, $fileContent);
 
 		return $processFile;
+	}
+
+	/**
+	 * 将 ws 服务启动文件 复制到项目runtime中
+	 * @return array
+	 */
+	public function copyWsProcessFile(): array
+	{
+		$runtimeProcessPath = $this->getRuntimePath();
+
+		$files = glob(__PKG__ . DIRECTORY_SEPARATOR . 'Windows/*.php');
+		$newFiles = [];
+		foreach ($files as $file) {
+			$newFile = $runtimeProcessPath . basename($file);
+			copy($file, $newFile);
+			$newFiles[] = $newFile;
+		}
+
+		return $newFiles;
 	}
 }

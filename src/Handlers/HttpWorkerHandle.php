@@ -7,7 +7,6 @@ use ThinkWorker\Application;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
-use Workerman\Timer;
 use Workerman\Worker;
 
 class HttpWorkerHandle
@@ -24,17 +23,6 @@ class HttpWorkerHandle
 	 */
 	protected ?int $lastMtime = null;
 
-	/**
-	 * 等待响应的请求计数
-	 */
-	protected static int $waitResponseCount = 0;
-
-	/**
-	 * 监控配置
-	 * @var array
-	 */
-	protected static array $monitor_config = [];
-
 	public function onWorkerStart(Worker $worker): void
 	{
 		$this->app = new Application();
@@ -46,14 +34,6 @@ class HttpWorkerHandle
 		$this->lastMtime = time();
 
 		$this->app->initialize();
-
-		if (empty(self::$monitor_config)) {
-			self::$monitor_config = $this->app->config->get('worker_process.monitor.constructor');
-		}
-
-		if (0 === $worker->id) {
-			new Monitor(self::$monitor_config);
-		}
 	}
 
 	public function onMessage(TcpConnection $connection, Request $request): void
@@ -117,11 +97,6 @@ class HttpWorkerHandle
 
 	protected function sendRequestToController(TcpConnection $connection): void
 	{
-		self::$waitResponseCount++;
-		if (self::$monitor_config['soft_reboot'] && ! Monitor::isPaused()) {
-			Monitor::pause();
-		}
-
 		// 避免输出到命令行窗口
 		while (ob_get_level() > 1) {
 			ob_end_clean();
@@ -139,18 +114,5 @@ class HttpWorkerHandle
 		$content .= ob_get_clean() ?: '';
 
 		$connection->send(new Response($response->getCode(), $response->getHeader(), $content));
-
-		self::$waitResponseCount--;
-		if (self::$waitResponseCount <= 0 && self::$monitor_config['soft_reboot']) {
-			// 隔一次时间间隔再启动检测
-			Timer::add(
-				self::$monitor_config['interval'],
-				function () {
-					Monitor::isPaused() && Monitor::resume();
-				},
-				[],
-				false
-			);
-		}
 	}
 }

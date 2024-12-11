@@ -7,6 +7,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
+use ThinkWorker\Handlers\WebSocketHandle;
 use ThinkWorker\Traits\WorkerTrait;
 
 class Worker extends Command
@@ -36,11 +37,29 @@ class Worker extends Command
 			exit();
 		}
 
-		foreach ($services as $process => $configs) {
-			worker_start($process, $configs);
+		if (! is_windows()) {
+			foreach ($services as $process => $configs) {
+				worker_start($process, $configs);
+			}
+
+			$this->startWsWorker();
+		} else {
+			$this->startWindowsWorker($services);
 		}
 
+
 		\Workerman\Worker::runAll();
+	}
+
+	/**
+	 * 开启 Ws 服务
+	 * @return void
+	 */
+	protected function startWsWorker(): void
+	{
+		if (config('worker_ws.enable', false)) {
+			new WebSocketHandle();
+		}
 	}
 
 	/**
@@ -53,12 +72,11 @@ class Worker extends Command
 
 		$httpConf = config('worker_http');
 		if (! empty($httpConf['enable'])) {
-			$server[] = ['httpWorker' => $httpConf];
-		}
-
-		$wsConf = config('worker_ws');
-		if (! empty($wsConf['enable'])) {
-			$server[] = ['wsWorker' => $wsConf];
+			if (is_windows()) {
+				$server[] = ['worker_http'];
+			} else {
+				$server['httpWorker'] = $httpConf;
+			}
 		}
 
 		$configs = config('worker_process');
@@ -67,7 +85,15 @@ class Worker extends Command
 				continue;
 			}
 
-			$server[] = [$process => $options];
+			if (is_windows()) {
+				if ($process === 'monitor') {
+					continue;
+				}
+
+				$server[] = ['worker_process', $process];
+			} else {
+				$server[$process] = $options;
+			}
 		}
 
 		return $server;

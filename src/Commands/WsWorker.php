@@ -7,6 +7,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
+use ThinkWorker\Handlers\WebSocketHandle;
 use ThinkWorker\Traits\WorkerTrait;
 
 class WsWorker extends Command
@@ -27,14 +28,33 @@ class WsWorker extends Command
 
 		$this->checkArgs($action);
 
-		$config = $this->app->config->get('worker_ws');
-
-		$this->setStaticOptions('ws');
-
-		worker_start('wsWorker', $config);
+		if (! is_windows()) {
+			new WebSocketHandle();
+		} else {
+			$services = $this->copyWsProcessFile();
+			$this->runInWindows($services);
+		}
 
 		\Workerman\Worker::runAll();
 	}
 
+	/**
+	 * 加载全部需要启动的进程
+	 * @return array
+	 */
+	protected function getAllProcess(): array
+	{
+		$server = [];
 
+		$configs = config('worker_ws');
+		foreach ($configs as $process => $options) {
+			if (is_windows()) {
+				$server[] = ['worker_ws', $process];
+			} else {
+				$server[$process] = $options;
+			}
+		}
+
+		return $server;
+	}
 }

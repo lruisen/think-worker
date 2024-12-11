@@ -48,6 +48,7 @@ if (! function_exists('worker_start')) {
 
 		$worker->onWorkerStart = function ($worker) use ($config) {
 			if (empty($config['handler'])) {
+				dump("process error: the attribute handler does not exist in config\r\n");
 				return;
 			}
 
@@ -56,8 +57,9 @@ if (! function_exists('worker_start')) {
 				return;
 			}
 
-			$instance = Container::getInstance()->make($config['handler'], $config['constructor'] ?? []);
-			worker_bind_events($worker, $instance);
+			$vars = empty($config['constructor']) ? [] : [$config['constructor']];
+			$instance = Container::getInstance()->make($config['handler'], $vars);
+			worker_bind_events($worker, $instance, $config);
 		};
 	}
 }
@@ -67,9 +69,10 @@ if (! function_exists('worker_bind_events')) {
 	 * worker 进程绑定回调属性
 	 * @param Worker $worker
 	 * @param mixed $class
+	 * @param array $config
 	 * @return void
 	 */
-	function worker_bind_events(Worker $worker, mixed $class): void
+	function worker_bind_events(Worker $worker, mixed $class, array $config = []): void
 	{
 		$callbackMap = [
 			'onConnect',
@@ -86,6 +89,8 @@ if (! function_exists('worker_bind_events')) {
 		foreach ($callbackMap as $name) {
 			if (method_exists($class, $name)) {
 				$worker->$name = [$class, $name];
+			} else if (! empty($config[$name]) && $config[$name] instanceof Closure) {
+				$worker->$name = $config[$name];
 			}
 		}
 

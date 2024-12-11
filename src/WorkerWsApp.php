@@ -33,8 +33,8 @@ class WorkerWsApp extends App
 	public function init(array $server = []): void
 	{
 		// 输入过滤
-		array_walk_recursive($this->message, ['WorkerThink\Helper', 'cleanXss']);
-		array_walk_recursive($this->requestData, ['WorkerThink\Helper', 'cleanXss']);
+		array_walk_recursive($this->message, ['ThinkWorker\Helper', 'cleanXss']);
+		array_walk_recursive($this->requestData, ['ThinkWorker\Helper', 'cleanXss']);
 
 		$_GET = $this->requestData['get'] ?? [];
 		$_REQUEST = array_merge($_REQUEST, $_GET);
@@ -66,12 +66,14 @@ class WorkerWsApp extends App
 			if (Gateway::isUidOnline($uid)) {
 				Gateway::sendToUid($uid, $result);
 			}
+			
 			return true;
 		}
 
 		if (Gateway::isOnline($this->clientId)) {
 			return Gateway::sendToClient($this->clientId, $result);
 		}
+
 		return true;
 	}
 
@@ -85,7 +87,6 @@ class WorkerWsApp extends App
 		return json_encode([
 			'type' => $type,
 			'data' => $data,
-			'path' => $this->message['pathInfo'] ?? '',
 			'time' => $this->message['MESSAGE_TIME'] ?? '',
 		]);
 	}

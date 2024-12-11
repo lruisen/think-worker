@@ -12,11 +12,11 @@ use ThinkWorker\Request;
 class InteractsWithVarDumper
 {
 	/**
-	 * @param Request $request
+	 * @param \app\Request|Request $request
 	 * @param Closure $next
 	 * @return Response
 	 */
-	public function handle(Request $request, Closure $next): Response
+	public function handle(Request|\app\Request $request, Closure $next): Response
 	{
 		if (class_exists(VarDumper::class)) {
 			$cloner = new VarCloner();

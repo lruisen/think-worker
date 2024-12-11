@@ -5,11 +5,10 @@ namespace ThinkWorker\Handlers;
 use GatewayWorker\BusinessWorker;
 use think\db\exception\PDOException;
 use think\facade\App;
-use think\facade\Config;
 use think\facade\Db;
 use ThinkWorker\WorkerWsApp;
 
-class HandleBusinessEvents
+class BusinessEventsHandle
 {
 	/**
 	 * 文件监听配置
@@ -31,9 +30,6 @@ class HandleBusinessEvents
 	public static function onWorkerStart(BusinessWorker $worker): void
 	{
 		self::$worker = $worker;
-		if (! self::$monitorConfig) {
-			self::$monitorConfig = Config::get('worker_process.monitor.constructor');
-		}
 
 		if (! self::$db) {
 			try {
@@ -42,10 +38,6 @@ class HandleBusinessEvents
 				self::$db = $app->db;
 			} catch (PDOException) {
 			}
-		}
-
-		if (0 == $worker->id) {
-			new Monitor(self::$monitorConfig);
 		}
 	}
 
@@ -73,19 +65,21 @@ class HandleBusinessEvents
 	 */
 	public static function onMessage(string $clientId, mixed $message): bool
 	{
-		if ($message == 'ping') return true;
-
 		$app = new WorkerWsApp(root_path());
 		$app->db = self::$db;
 		$app->worker = self::$worker;
 		$app->clientId = $clientId;
 		$app->requestData = $_SESSION['requestData'] ?? [];
 
-		$app->message = json_decode($message, true);
+		if ($message === 'ping') {
+			return $app->send('ping', 'ping');
+		}
+
+		$app->message = json_decode($message, JSON_UNESCAPED_UNICODE);
 		if (json_last_error() != JSON_ERROR_NONE) {
 			return $app->send('error', [
-				'message' => 'Message parsing error:' . json_last_error_msg(),
 				'code' => 500,
+				'message' => 'Message parsing error:' . json_last_error_msg(),
 			]);
 		}
 
