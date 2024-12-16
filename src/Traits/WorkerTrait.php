@@ -63,7 +63,7 @@ trait WorkerTrait
 	 * @param ?string $firm 数组选项
 	 * @return void
 	 */
-	protected function startWindowsWorker(string|array $config, string $firm = null): void
+	protected function startWindowsWorker(string|array $config, ?string $firm = null): void
 	{
 		$servers = [];
 
@@ -164,10 +164,10 @@ trait WorkerTrait
 	/**
 	 * 生成进程启动文件
 	 * @param string $processName 配置文件名称
-	 * @param string $firm 配置文件 Key 值
+	 * @param ?string $firm 配置文件 Key 值
 	 * @return string
 	 */
-	protected function writeProcessFile(string $processName, string $firm = ''): string
+	protected function writeProcessFile(string $processName, ?string $firm = ''): string
 	{
 		$processParam = $firm ?: $processName;
 		$configParam = $firm ? "config('$processName.$firm')" : "config('$processName')";

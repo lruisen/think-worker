@@ -42,18 +42,16 @@ class Worker extends Command
 				worker_start($process, $configs);
 			}
 
-			$this->startWsWorker();
+			\Workerman\Worker::runAll();
 		} else {
 			$this->startWindowsWorker($services);
 		}
-
-
-		\Workerman\Worker::runAll();
 	}
 
 	/**
 	 * 开启 Ws 服务
 	 * @return void
+	 * @deprecated 废弃
 	 */
 	protected function startWsWorker(): void
 	{

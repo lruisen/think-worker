@@ -1,4 +1,4 @@
-# Thinkphp Workerman工程，让您的Thinkphp应用 `常驻内存` 运行！
+## Thinkphp Workerman工程，让您的Thinkphp应用 `常驻内存` 运行！
 
 ## 特别鸣谢
 
@@ -22,9 +22,11 @@
 
 ## 功能特性
 
-1. 本模块默认提供一个HTTP服务和一个WebSocket服务。
-2. 基于Workerman，就像Webman也是基于它一样，但本模块的整合方式更加简洁（TP本身比Webman复杂）。
-3. 文件监听热重载支持。
+1. 文件监听热重载支持。
+2. 本模块默认提供一个HTTP服务。
+3. 基于Workerman，就像Webman也是基于它一样，但本模块的整合方式更加简洁（TP本身比Webman复杂）。
+
+## 启动服务
 
 ## HTTP服务
 
@@ -32,52 +34,17 @@
 * `/config/worker_http.php` 配置文件中 `enable` 设置为 false 则不启动 http 服务
 * 若您需要一些常驻内存运行程序的相关建议，请参考本介绍页的下半部分。
 
-### Windows
-
-```shell
-php think worker:win start
-```
-
 > 热更新配置在 `/config/worker_process/`中，APP_DEBUG = true 模式下自动开启热更新
 
-### Linux/Mac
-
-* 以下命令权限不足请自行加sudo
-* 执行php think worker start以调试模式启动服务
-* 执行php think worker start -d以守护进程模式启动服务
-* php think worker stop停止服务
-* php think worker restart重启服务
-* php think worker reload柔性重启服务
-* php think worker status查看服务状态
-
-## WEBSOCKET服务
-
-* 本服务配置文件位于/config/worker_ws.php，默认端口为2828
-* `/config/worker_ws.php` 配置文件中 `enable` 设置为 false 则不启动 websocket 服务
-* 若您需要一些常驻内存运行程序的相关建议，请参考本介绍页的下半部分。
-* ws服务的心跳保活机制，前端每50s向服务端发送一次字符串ping即可（您当然也可以自行实现不同的心跳方案）。
-* 以下提供一份前台测试ws的代码
-
-```javascript
-// 连接
-var websocket = new WebSocket('ws://127.0.0.1:2828');
-websocket.onopen = function () {
-    console.log('连接成功了');
-
-    // 定时发送心跳以保持连接 - 50秒间隔为推荐值
-    setInterval(() => {
-        websocket.send('ping')
-    }, 50000);
-
-    // 发送消息
-    websocket.send('{"pathInfo":"worker/WebSocketExamples/message"}')
-};
-websocket.onclose = function (evt) {
-    console.log('连接关闭中', evt);
-};
-websocket.onmessage = function (evt) {
-    console.log('收到消息', evt);
-};
+```shell
+ # 此命令单独启动 Http 服务 
+ # 以下命令在linux中权限不足时请自行加sudo
+ php think worker:http start #以调试模式启动服务
+ php think worker:http start -d #以守护进程模式启动服务
+ php think worker:http stop #停止服务
+ php think worker:http restart #重启服务
+ php think worker:http reload #柔性重启服务
+ php think worker:http status #查看服务状态
 ```
 
 ## 队列
@@ -106,6 +73,17 @@ websocket.onmessage = function (evt) {
 
 > 具体配置参数请参考配置文件
 
+```shell
+ # 此命令单独启动 Queue 队列服务 
+ # 以下命令在linux中权限不足时请自行加sudo
+ php think worker:queue start #以调试模式启动服务
+ php think worker:queue start -d #以守护进程模式启动服务
+ php think worker:queue stop #停止服务
+ php think worker:queue restart #重启服务
+ php think worker:queue reload #柔性重启服务
+ php think worker:queue status #查看服务状态
+```
+
 ## 定时任务
 
 配置文件位于 `config/worker_crontab`
@@ -118,7 +96,7 @@ websocket.onmessage = function (evt) {
 > 中间件内容从 [top-think/think-swoole](https://github.com/top-think/think-swoole) 中摘抄而来
 
 由于应用是通过php cli启动的，所以默认`symfony/var-dumper`会将调试信息打印在控制台, 通过配置中间件来支持将调试信息输出在网页上
-如下是直接在配置在全局中间件上，也可以在路由定义的时候配置
+如下是直接在配置在全局中间件上，也可以在路由定义的时候配置，建议是在路由定义的时候配置更加灵活
 
 ```php
 // app/middleware.php
@@ -126,12 +104,7 @@ websocket.onmessage = function (evt) {
 <?php
 // 全局中间件定义文件
 return [
-    // 全局请求缓存
-    // \think\middleware\CheckRequestCache::class,
-    // 多语言加载
-    // \think\middleware\LoadLangPack::class,
-    // Session初始化
-    //\think\middleware\SessionInit::class,
+    // ......
     \ThinkWorker\middleware\InteractsWithVarDumper::class,
 ];
 ```
@@ -153,7 +126,7 @@ return [
 
 ## 常见问题
 
-### http无法访问，ws无法连接？
+### http无法访问？
 
 * 请首先排除端口问题，端口未开放占此类问题的80%以上，服务器面板开放端口，同时服务商的安全组、负载均衡、CDN等服务若有使用也需要同步开放对应端口。
 
@@ -169,4 +142,4 @@ return [
 ### 模块如何监听onWorkerStart等事件？
 
 * 在模块开发中，您只需要于模块核心控制器中直接定义onWorkerStart、onWorkerStop、onWebSocketConnect、onWebSocketClose方法，
-* 即可监听对应的事件（http服务不支持，仅ws），若不能满足您的需求，请参考已有的ws和http服务自定义您的专属服务。
+* 即可监听对应的事件，若不能满足您的需求，请参考已有的http服务或其他服务自定义您的专属服务。

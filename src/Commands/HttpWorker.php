@@ -27,18 +27,16 @@ class HttpWorker extends Command
 
 		$this->checkArgs($action);
 
-		$config = $this->app->config->get('worker_http');
-
 		$this->setStaticOptions('http');
 
 		if (! is_windows()) {
+			$config = $this->app->config->get('worker_http');
+
 			worker_start('httpWorker', $config);
+
+			\Workerman\Worker::runAll();
 		} else {
 			$this->startWindowsWorker('worker_http');
 		}
-
-		\Workerman\Worker::runAll();
 	}
-
-
 }

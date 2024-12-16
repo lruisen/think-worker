@@ -41,7 +41,6 @@
         "ThinkWorker\\Service"
       ],
       "config": {
-        "worker_ws": "src/Configs/worker_ws.php",
         "worker_http": "src/Configs/worker_http.php",
         "worker_process": "src/Configs/worker_process.php"
       }

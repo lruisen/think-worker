@@ -27,14 +27,16 @@ class QueueWorker extends Command
 
 		$this->checkArgs($action);
 
-		$config = $this->app->config->get('worker_process.queue');
-
 		$this->setStaticOptions('queue');
 
-		worker_start('queueWorker', $config);
+		if (! is_windows()) {
+			$config = $this->app->config->get('worker_process.queue');
+			
+			worker_start('queueWorker', $config);
 
-		\Workerman\Worker::runAll();
+			\Workerman\Worker::runAll();
+		} else {
+			$this->startWindowsWorker('worker_process', 'queue');
+		}
 	}
-
-
 }
