@@ -13,6 +13,8 @@ class QueueWorker extends Command
 {
 	use WorkerTrait;
 
+	protected const SERVER = 'Queue';
+
 	public function configure(): void
 	{
 		$this->setName('worker:queue')
@@ -25,13 +27,17 @@ class QueueWorker extends Command
 	{
 		$action = trim($input->getArgument('action'));
 
-		$this->checkArgs($action);
+		$this->checkArgs($action, self::SERVER);
 
-		$this->setStaticOptions('queue');
+		$this->setStaticOptions(self::SERVER);
+
+		$config = $this->app->config->get('worker_process.queue');
+		if (empty($config['enable'])) {
+			$this->output->writeln("<error>配置enable未开启</error>");
+			exit();
+		}
 
 		if (! is_windows()) {
-			$config = $this->app->config->get('worker_process.queue');
-			
 			worker_start('queueWorker', $config);
 
 			\Workerman\Worker::runAll();

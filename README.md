@@ -28,6 +28,17 @@
 
 ## 启动服务
 
+```shell
+ # 此命令一键启动enable为true的服务 
+ # 以下命令在linux中权限不足时请自行加sudo
+ php think worker start #以调试模式启动服务
+ php think worker start -d #以守护进程模式启动服务
+ php think worker stop #停止服务
+ php think worker restart #重启服务
+ php think worker reload #柔性重启服务
+ php think worker status #查看服务状态
+```
+
 ## HTTP服务
 
 * 服务配置文件位于`/config/worker_http.php`，默认端口为9501，所以一旦启动本服务，就不需要启动php think run了。
@@ -86,10 +97,21 @@
 
 ## 定时任务
 
-配置文件位于 `config/worker_crontab`
+配置文件位于 `config/worker_cron`
 > [基于workerman的定时任务程序crontab](https://www.workerman.net/doc/workerman/components/crontab.html)
 >
 > 具体配置参数请参考配置文件
+
+```shell
+ # 此命令单独启动 crontab 服务 
+ # 以下命令在linux中权限不足时请自行加sudo
+ php think worker:cron start #以调试模式启动服务
+ php think worker:cron start -d #以守护进程模式启动服务
+ php think worker:cron stop #停止服务
+ php think worker:cron restart #重启服务
+ php think worker:cron reload #柔性重启服务
+ php think worker:cron status #查看服务状态
+```
 
 ## 支持`symfony/var-dumper`
 

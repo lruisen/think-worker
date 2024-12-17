@@ -9,18 +9,18 @@ use think\console\input\Option;
 use think\console\Output;
 use ThinkWorker\Traits\WorkerTrait;
 
-class HttpWorker extends Command
+class CronWorker extends Command
 {
 	use WorkerTrait;
 
-	protected const SERVER = 'Http';
+	protected const SERVER = 'Crontab';
 
 	public function configure(): void
 	{
-		$this->setName('worker:http')
+		$this->setName('worker:cron')
 			->addArgument('action', Argument::OPTIONAL, "start|stop|restart|reload|status", 'start')
 			->addOption('daemon', 'd', Option::VALUE_NONE, 'Run the workerman server in daemon mode.')
-			->setDescription('Workerman HTTP Server for ThinkPHP');
+			->setDescription('Workerman Crontab Server for ThinkPHP');
 	}
 
 	public function execute(Input $input, Output $output): void
@@ -31,18 +31,25 @@ class HttpWorker extends Command
 
 		$this->setStaticOptions(self::SERVER);
 
-		$config = $this->app->config->get('worker_http');
-		if (empty($config['enable'])) {
+		$crontab = $this->app->config->get('worker_cron');
+		if (empty($crontab['enable'])) {
 			$this->output->writeln("<error>配置enable未开启</error>");
 			exit();
 		}
 
 		if (! is_windows()) {
-			worker_start('httpWorker', $config);
+			foreach ($crontab['processes'] as $process_name => $config) {
+				worker_start($process_name, $config);
+			}
 
 			\Workerman\Worker::runAll();
 		} else {
-			$this->startWindowsWorker('worker_http');
+			$server = [];
+			foreach ($crontab['processes'] as $process => $options) {
+				$server[] = ['worker_cron.processes', $process];
+			}
+
+			$this->startWindowsWorker($server);
 		}
 	}
 }

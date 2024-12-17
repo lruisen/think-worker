@@ -7,7 +7,6 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
-use ThinkWorker\Handlers\WebSocketHandle;
 use ThinkWorker\Traits\WorkerTrait;
 
 class Worker extends Command
@@ -49,18 +48,6 @@ class Worker extends Command
 	}
 
 	/**
-	 * 开启 Ws 服务
-	 * @return void
-	 * @deprecated 废弃
-	 */
-	protected function startWsWorker(): void
-	{
-		if (config('worker_ws.enable', false)) {
-			new WebSocketHandle();
-		}
-	}
-
-	/**
 	 * 加载全部需要启动的进程
 	 * @return array
 	 */
@@ -74,6 +61,17 @@ class Worker extends Command
 				$server[] = ['worker_http'];
 			} else {
 				$server['httpWorker'] = $httpConf;
+			}
+		}
+
+		$cronConf = config('worker_cron');
+		if (! empty($cronConf['enable'])) {
+			foreach ($cronConf['processes'] as $process => $options) {
+				if (is_windows()) {
+					$server[] = ['worker_cron.processes', $process];
+				} else {
+					$server[$process] = $options;
+				}
 			}
 		}
 

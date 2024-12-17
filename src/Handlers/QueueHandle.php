@@ -3,6 +3,7 @@
 namespace ThinkWorker\Handlers;
 
 use Exception;
+use think\console\Output;
 use think\facade\Config;
 use think\helper\Arr;
 use think\queue\Listener;
@@ -21,6 +22,9 @@ class QueueHandle
 	)
 	{
 		$this->listener = app()->make(Listener::class);
+		$this->listener->setOutputHandler(function ($type, $line) {
+			app()->make(Output::class)->write($line);
+		});
 	}
 
 

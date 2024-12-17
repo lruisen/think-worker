@@ -30,9 +30,10 @@ trait WorkerTrait
 	/**
 	 * 命令行启动参数校验
 	 * @param string $action 命令行启动参数
+	 * @param string $server 启动的服务名称
 	 * @return void
 	 */
-	protected function checkArgs(string $action): void
+	protected function checkArgs(string $action, string $server = ''): void
 	{
 		if (is_windows() && 'start' !== $action) {
 			$this->output->writeln("<error>Not Support action:{$action} on Windows.</error>");
@@ -45,7 +46,7 @@ trait WorkerTrait
 		}
 
 		if ('start' == $action) {
-			$this->output->writeln('Starting Workerman http server...');
+			$this->output->writeln(sprintf("Starting Workerman %s server...", $server));
 		}
 	}
 
@@ -201,24 +202,5 @@ EOF;
 		file_put_contents($processFile, $fileContent);
 
 		return $processFile;
-	}
-
-	/**
-	 * 将 ws 服务启动文件 复制到项目runtime中
-	 * @return array
-	 */
-	public function copyWsProcessFile(): array
-	{
-		$runtimeProcessPath = $this->getRuntimePath();
-
-		$files = glob(__PKG__ . DIRECTORY_SEPARATOR . 'Windows/*.php');
-		$newFiles = [];
-		foreach ($files as $file) {
-			$newFile = $runtimeProcessPath . basename($file);
-			copy($file, $newFile);
-			$newFiles[] = $newFile;
-		}
-
-		return $newFiles;
 	}
 }

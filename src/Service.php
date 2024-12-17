@@ -2,10 +2,10 @@
 
 namespace ThinkWorker;
 
+use ThinkWorker\Commands\CronWorker;
 use ThinkWorker\Commands\HttpWorker;
 use ThinkWorker\Commands\QueueWorker;
 use ThinkWorker\Commands\Worker;
-use ThinkWorker\Commands\WsWorker;
 
 class Service extends \think\Service
 {
@@ -16,7 +16,7 @@ class Service extends \think\Service
 		$this->commands([
 			'worker' => Worker::class,
 			'worker:http' => HttpWorker::class,
-			'worker:ws' => WsWorker::class,
+			'worker:cron' => CronWorker::class,
 			'worker:queue' => QueueWorker::class,
 		]);
 	}

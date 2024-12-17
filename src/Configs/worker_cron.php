@@ -1,0 +1,48 @@
+<?php
+
+use ThinkWorker\Crontab\SampleTask;
+use ThinkWorker\Crontab\Schedule;
+use ThinkWorker\Facade\Crontab;
+
+/**
+ * ---------------------------------------------------------------------
+ * 定时任务配置，这里使用的是基于workerman的定时任务程序crontab
+ * 详情查阅文档 https://www.workerman.net/doc/workerman/components/crontab.html
+ *
+ * addTask 参数说明
+ * 1. $name 任务名称，用于区分不同的任务
+ * 2. $cron 定时任务时间格式，支持秒级别定时任务，具体请查看下方时间说明
+ * 3. $task 任务类，必须继承父类 ThinkWorker\Crontab\BaseTask
+ *
+ * 添加单个定时任务，独立进程
+ * ->addTask('demo', \ThinkWorker\Facade\Crontab::cron("* * * * * *"), \ThinkWorker\Crontab\SampleTask::class)
+ *
+ * 添加多个定时任务，在同个进程中（注意会存在阻塞）
+ * ->addTasks('task2', [
+ *        [\ThinkWorker\Facade\Crontab::hourly(), \ThinkWorker\Crontab\SampleTask::class],
+ *        [\ThinkWorker\Facade\Crontab::daily(), \ThinkWorker\Crontab\SampleTask::class],
+ * ])
+ *
+ *  时间说明
+ *  *   *   *   *   *   *
+ *  0   1   2   3   4   5
+ *  |   |   |   |   |   |
+ *  |   |   |   |   |   +------ day of week (0 - 6) (Sunday=0)
+ *  |   |   |   |   +------ month (1 - 12)
+ *  |   |   |   +-------- day of month (1 - 31)
+ *  |   |   +---------- hour (0 - 23)
+ *  |   +------------ min (0 - 59)
+ *  +-------------- sec (0-59)[可省略，如果没有0位,则最小时间粒度是分钟]
+ * ---------------------------------------------------------------------
+ */
+
+return [
+	// 是否启用定时任务
+	"enable" => false,
+	// 定时任务进程配置
+	"processes" => (new Schedule())
+		// 在此处使用addTask或addTasks添加任务
+		// 示例任务可自行删除
+		->addTask('demo', Crontab::everySeconds(), SampleTask::class)
+		->buildProcesses(),
+];

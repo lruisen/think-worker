@@ -42,6 +42,7 @@
       ],
       "config": {
         "worker_http": "src/Configs/worker_http.php",
+        "worker_cron": "src/Configs/worker_cron.php",
         "worker_process": "src/Configs/worker_process.php"
       }
     }
