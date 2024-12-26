@@ -18,18 +18,30 @@
 ## 介绍
 
 * 相同的请求为php think run 耗时的N倍，快到起飞！
-* 本模块直接依赖 workerman/gateway-worker，您可以使用它提供的方法，也可以直接使用 Workerman 4.x+ 的方法
+* 本模块依赖 `workerman`,`workerman/gateway-worker`,`workerman/crontab`，您可以使用它提供的方法，也可以直接使用 Workerman
+  4.x+ 的方法
+
+## 安装扩展包
+
+```shell
+
+# 建议使用 composer 默认镜像，第三方镜像无法保证及时同步最新版本
+composer require lruisen/think-worker
+```
 
 ## 功能特性
 
 1. 文件监听热重载支持。
-2. 本模块默认提供一个HTTP服务。
-3. 基于Workerman，就像Webman也是基于它一样，但本模块的整合方式更加简洁（TP本身比Webman复杂）。
+2. 本模块默认提供HTTP服务。
+3. 提供基于 `workerman/crontab` 的定时任务服务
+4. 提供基于 `topthink/think-queue` 的一键启动队列服务
+5. 基于Workerman，就像Webman也是基于它一样「TP本身比Webman复杂」。
+6. 支持使用docker容器运行「Dockerfile文件在源码根目录」。
 
-## 启动服务
+## 一键启动全部服务
 
 ```shell
- # 此命令一键启动enable为true的服务 
+ # 此命令一键启动配置文件 `config/worker_*.php` 中 enable 为 true 的服务 
  # 以下命令在linux中权限不足时请自行加sudo
  php think worker start #以调试模式启动服务
  php think worker start -d #以守护进程模式启动服务
@@ -39,7 +51,7 @@
  php think worker status #查看服务状态
 ```
 
-## HTTP服务
+## 独立启动HTTP服务
 
 * 服务配置文件位于`/config/worker_http.php`，默认端口为9501，所以一旦启动本服务，就不需要启动php think run了。
 * `/config/worker_http.php` 配置文件中 `enable` 设置为 false 则不启动 http 服务
@@ -58,27 +70,30 @@
  php think worker:http status #查看服务状态
 ```
 
-## 队列
+## 独立启动队列服务
 
 配置文件位于 `config/worker_process`
 以下配置代替think-queue里的最后一步:监听任务并执行,无需另外起进程执行队列
 
 ```php
-"queue" => [
-    "enable" => false, // 是否开启队列监听并执行，true:开启，false:关闭
-    "handler" => Queue::class,
-    "count" => 1,  // 进程数量
-    "constructor" => [
-        "workers" => [
-            // 键名是队列名称
-            "default" => [
-                "delay" => 0,  // 延迟执行时间，0为立即执行,
-                "sleep" => 3,
-                "tries" => 0, // 队列执行失败后的重试次数
-                "timeout" => 60,  // 进程执行超时时间
-            ],
+'queue' => [
+    'enable' => false, // 是否开启队列监听并执行，true:开启，false:关闭
+    'workers' => [
+        // 在windows系统靠此处键值开启进程，此处键值作为进程名称
+        'default' => [
+            'count' => 1, // 监听队列任务的进程数
+            'handler' => QueueHandle::class,
+            'constructor' => [
+                'options' => [
+                    'name' => 'default',
+                    'delay' => 0,
+                    'sleep' => 3,
+                    'tries' => 0,
+                    'timeout' => 60,
+                ]
+            ]
         ],
-    ]
+    ],
 ],
 ```
 
@@ -95,7 +110,7 @@
  php think worker:queue status #查看服务状态
 ```
 
-## 定时任务
+## 独立启动定时任务服务
 
 配置文件位于 `config/worker_cron`
 > [基于workerman的定时任务程序crontab](https://www.workerman.net/doc/workerman/components/crontab.html)
@@ -136,7 +151,7 @@ return [
 ### php cli下不支持的特性
 
 1. Cookie和Session：我们也建议您无必要不使用，通常无需担心。
-2. header：请使用TP的return Response()->header()方案设置响应头，如果是SSE等比较特别的，请使用特定格式输出对应所需的响应头内容。
+2. header：请使用TP的return Response()->header()方案设置响应头，如果是SSE等比较特别的，请使用对应特定格式输出对应所需的响应头内容。
 
 ### 对比传统PHP应用
 
