@@ -48,7 +48,9 @@ class Schedule
 
 		$this->processes[$name] = [
 			'handler' => TaskProcess::class,
-			'constructor' => $tasks,
+			'constructor' => [
+				'tasks' => $tasks,
+			],
 		];
 		return $this;
 	}
