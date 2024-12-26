@@ -67,15 +67,14 @@ return [
 				'handler' => QueueHandle::class,
 				'constructor' => [
 					'options' => [
-						'name' => 'default', // 此键值为队列名称，如果需要指定 queue 连接，可以使用 default@connection
-						'delay' => 0,  // 任务执行失败后重新执行的秒数，0为立即执行, 2为2秒后重新执行
-						'sleep' => 3,  // 在执行队列前等待的秒数
-						'tries' => 0, // 队列执行失败后的重试次数
-						'timeout' => 60,  // 进程执行超时时间
+						'name' => 'default',
+						'delay' => 0,
+						'sleep' => 3,
+						'tries' => 0,
+						'timeout' => 60,
 					]
 				]
 			],
-			// default 默认只监听不带队列名称的任务，如果需要请复制上方配置 改变 name 属性
 		],
 	],
 
