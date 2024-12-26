@@ -57,8 +57,7 @@ if (! function_exists('worker_start')) {
 				return;
 			}
 
-			$vars = empty($config['constructor']) ? [] : [$config['constructor']];
-			$instance = Container::getInstance()->make($config['handler'], $vars);
+			$instance = Container::getInstance()->make($config['handler'], $config['constructor'] ?? []);
 			worker_bind_events($worker, $instance, $config);
 		};
 	}

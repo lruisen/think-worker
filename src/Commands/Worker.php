@@ -7,6 +7,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
+use think\helper\Str;
 use ThinkWorker\Traits\WorkerTrait;
 
 class Worker extends Command
@@ -55,6 +56,7 @@ class Worker extends Command
 	{
 		$server = [];
 
+		// http 服务
 		$httpConf = config('worker_http');
 		if (! empty($httpConf['enable'])) {
 			if (is_windows()) {
@@ -64,6 +66,7 @@ class Worker extends Command
 			}
 		}
 
+		// crontab 服务
 		$cronConf = config('worker_cron');
 		if (! empty($cronConf['enable'])) {
 			foreach ($cronConf['processes'] as $process => $options) {
@@ -75,9 +78,22 @@ class Worker extends Command
 			}
 		}
 
+		// think-queue 服务
+		$queues = config('worker_process.queue');
+		if (! empty($queues['enable'])) {
+			foreach ($queues['workers'] as $process => $worker) {
+				if (is_windows()) {
+					$server[] = ['worker_process.queue.workers', $process];
+				} else {
+					$server[sprintf('queue%s', Str::studly($process))] = $worker;
+				}
+			}
+		}
+
+		// 其他服务
 		$configs = config('worker_process');
 		foreach ($configs as $process => $options) {
-			if (empty($options['enable'])) {
+			if ($process === 'queue' || empty($options['enable'])) {
 				continue;
 			}
 

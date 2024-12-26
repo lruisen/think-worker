@@ -7,6 +7,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
+use think\helper\Str;
 use ThinkWorker\Traits\WorkerTrait;
 
 class QueueWorker extends Command
@@ -38,11 +39,23 @@ class QueueWorker extends Command
 		}
 
 		if (! is_windows()) {
-			worker_start('queueWorker', $config);
+			foreach ($config['workers'] as $process => $worker) {
+				worker_start(sprintf('queue%s', Str::studly($process)), $worker);
+			}
 
 			\Workerman\Worker::runAll();
 		} else {
-			$this->startWindowsWorker('worker_process', 'queue');
+			$server = [];
+			foreach ($config['workers'] as $process => $worker) {
+				$server[] = ['worker_process.queue.workers', $process];
+			}
+
+			if (empty($server)) {
+				$output->writeln('<error>需要运行的服务进程不能为空</error>');
+				exit();
+			}
+
+			$this->startWindowsWorker($server);
 		}
 	}
 }

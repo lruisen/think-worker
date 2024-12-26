@@ -69,6 +69,10 @@ trait WorkerTrait
 		$servers = [];
 
 		if (is_array($config)) {
+			if (empty($config)) {
+				return;
+			}
+
 			foreach ($config as $item) {
 				$servers[] = $this->writeProcessFile(...$item);
 			}
