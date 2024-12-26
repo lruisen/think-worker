@@ -3,15 +3,14 @@
 namespace ThinkWorker\Handlers;
 
 use Exception;
-use think\console\Output;
 use think\facade\Config;
 use think\helper\Arr;
-use think\queue\Listener;
+use think\queue\Worker as ThinkWorker;
 use Workerman\Worker;
 
 class QueueHandle
 {
-	protected ?Listener $listener = null;
+	protected ?ThinkWorker $worker = null;
 
 	/**
 	 * Queue Worker constructor.
@@ -21,10 +20,7 @@ class QueueHandle
 		protected array $options = [],
 	)
 	{
-		$this->listener = app()->make(Listener::class);
-		$this->listener->setOutputHandler(function ($type, $line) {
-			app()->make(Output::class)->write($line);
-		});
+		$this->worker = app()->make(ThinkWorker::class);
 	}
 
 
@@ -49,7 +45,10 @@ class QueueHandle
 		$memory = Arr::get($this->options, 'memory', 128);
 		$timeout = Arr::get($this->options, 'timeout', 60);
 
-		$this->listener->listen($connection, $queue, $delay, $sleep, $tries, $memory, $timeout);
-
+		if (Arr::get($this->options, 'once', false)) {
+			$this->worker->runNextJob($connection, $queue, $delay, $sleep, $tries);
+		} else {
+			$this->worker->daemon($connection, $queue, $delay, $sleep, $tries, $memory, $timeout);
+		}
 	}
 }

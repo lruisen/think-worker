@@ -46,14 +46,15 @@ return [
 	 * 如果enable属性设置为false时，需自行执行think-queue的监听已经守护进程执行
 	 *
 	 *  workers 参数说明，此处参数等效于think-queue的命令行参数
-	 *  php think queue:listen --queue=default --delay=3 --sleep=3 --tries=0 --timeout=60 --memory=128
+	 *  php think queue:work --queue=default --once=1 --delay=3 --sleep=3 --tries=0 --timeout=60 --memory=128
 	 *
-	 *  default 等效 --queue=default
+	 *  name 等效 --queue=default
 	 *  delay 等效 --delay=3
 	 *  sleep 等效 --sleep=3
 	 *  tries 等效 --tries=0
 	 *  timeout 等效 --timeout=60
 	 *  memory 等效 --memory=128
+	 *  once 等效 --once=1
 	 *
 	 *  如果需要指定驱动，可以使用 'default@connection' 的形式 例如 'default@redis'
 	 * ---------------------------------------------------------------------
@@ -72,6 +73,7 @@ return [
 						'sleep' => 3,
 						'tries' => 0,
 						'timeout' => 60,
+						'once' => false,
 					]
 				]
 			],
