@@ -12,19 +12,38 @@ trait WorkerTrait
 	 * @param string $service 服务名称
 	 * @return void
 	 */
-	protected function setStaticOptions(string $service = '1'): void
+	protected function setStaticOptions(string $service = 'worker'): void
 	{
 		if (! is_dir(runtime_path('workerman'))) {
 			mkdir(runtime_path('workerman'), 0755, true);
 		}
 
 		if ($this->input->hasOption('daemon')) {
+			// 守护进程运行
 			Worker::$daemonize = true;
+
+			// 守护进程时，标准输出文件
 			Worker::$stdoutFile = sprintf('%s.stdout_%s.log', runtime_path('workerman'), $service);
 		}
 
-		Worker::$pidFile = sprintf('%s_workerman_%s.pid', runtime_path(), $configs['port'] ?? $service); // 进程ID存储位置
-		Worker::$logFile = sprintf('%s%s.log', runtime_path('workerman'), date('Y-m-d')); // 日志输出位置
+		// 进程ID存储位置
+		Worker::$pidFile = sprintf('%s_workerman_%s.pid', runtime_path(), $configs['port'] ?? $service);
+
+		// 日志输出位置
+		Worker::$logFile = sprintf('%s%s.log', runtime_path('workerman'), date('Y-m-d'));
+
+		// 主进程收到重载信号时编译并缓存 PHP 脚本
+		Worker::$onMasterReload = function () {
+			if (! function_exists('opcache_get_status') || ! $status = opcache_get_status()) {
+				return;
+			}
+
+			if (isset($status['scripts']) && $scripts = $status['scripts']) {
+				foreach (array_keys($scripts) as $file) {
+					opcache_invalidate($file, true);
+				}
+			}
+		};
 	}
 
 	/**
@@ -104,11 +123,9 @@ trait WorkerTrait
 	protected function getMonitor(array &$servers = []): void
 	{
 		$options = $this->app->config->get('worker_process.monitor.constructor');
-		if (empty($options['switch'])) {
-			return;
+		if (! empty($options['options']['switch'])) {
+			$servers[] = $this->writeProcessFile('worker_process', 'monitor');
 		}
-
-		$servers[] = $this->writeProcessFile('worker_process', 'monitor');
 	}
 
 	/**

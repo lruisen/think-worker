@@ -15,10 +15,10 @@ class QueueHandle
 
 	/**
 	 * Queue Worker constructor.
-	 * @param array $workers
+	 * @param array $options
 	 */
 	public function __construct(
-		protected array $workers = [],
+		protected array $options = [],
 	)
 	{
 		$this->listener = app()->make(Listener::class);
@@ -36,20 +36,20 @@ class QueueHandle
 	 */
 	public function onWorkerStart(Worker $worker): void
 	{
-		foreach ($this->workers as $queue => $options) {
-			if (str_contains($queue, '@')) {
-				[$queue, $connection] = explode('@', $queue);
-			} else {
-				$connection = Config::get('queue.default');
-			}
-
-			$delay = Arr::get($options, 'delay', 0);
-			$sleep = Arr::get($options, 'sleep', 3);
-			$tries = Arr::get($options, 'tries', 0);
-			$memory = Arr::get($options, 'memory', 128);
-			$timeout = Arr::get($options, 'timeout', 60);
-
-			$this->listener->listen($connection, $queue, $delay, $sleep, $tries, $memory, $timeout);
+		if (str_contains($this->options['name'], '@')) {
+			[$queue, $connection] = explode('@', $this->options['name']);
+		} else {
+			$queue = $this->options['name'];
+			$connection = Config::get('queue.default');
 		}
+
+		$delay = Arr::get($this->options, 'delay', 0);
+		$sleep = Arr::get($this->options, 'sleep', 3);
+		$tries = Arr::get($this->options, 'tries', 0);
+		$memory = Arr::get($this->options, 'memory', 128);
+		$timeout = Arr::get($this->options, 'timeout', 60);
+
+		$this->listener->listen($connection, $queue, $delay, $sleep, $tries, $memory, $timeout);
+
 	}
 }

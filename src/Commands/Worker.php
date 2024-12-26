@@ -56,6 +56,12 @@ class Worker extends Command
 	{
 		$server = [];
 
+		// 热更新
+		$monitorConfig = config('worker_process.monitor');
+		if (! is_windows() && $monitorConfig['constructor']['options']['switch'] ?? false) {
+			$server['Monitor'] = $monitorConfig;
+		}
+
 		// http 服务
 		$httpConf = config('worker_http');
 		if (! empty($httpConf['enable'])) {
