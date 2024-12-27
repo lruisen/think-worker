@@ -63,7 +63,7 @@ return [
 		'enable' => false, // 是否开启队列监听并执行，true:开启，false:关闭
 		'workers' => [
 			// 在windows系统靠此处键值开启进程，此处键值作为进程名称
-			'default' => [
+			'default_queue' => [
 				'count' => 1, // 监听队列任务的进程数
 				'handler' => QueueHandle::class,
 				'constructor' => [
@@ -89,6 +89,8 @@ return [
 	 *  'demo' => [  // demo 为进程标识
 	 *         'enable' => true,        // 是否开启进程，true:开启，false:关闭
 	 *         'handler' => Demo::class,  // 此处填写进程处理类，比如 定时任务 自动执行
+	 *         'listen' => 'tcp://0.0.0.0:1234', // 监听地址，协议支持：tcp udp unix http websocket text
+	 *         'context' => [], // 上下文配置项，具体请参考workerman文档
 	 *         'constructor' => [],         // 此处填写 handler 实例的 __constructor 函数接收的全部参数 实例化时会执行 解包
 	 *         'count' => cpu_count(), // 设置当前Worker实例启动多少个进程，不设置时默认为1。
 	 *         'user' => '',  // 设置当前Worker实例以哪个用户运行。此属性只有当前用户为root时才能生效。不设置时默认以当前用户运行。
