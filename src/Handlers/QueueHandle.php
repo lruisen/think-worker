@@ -44,7 +44,7 @@ class QueueHandle
 	 */
 	public function onWorkerStart(Worker $worker): void
 	{
-		
+
 		$this->listenForEvents();
 
 		[$queue, $connection] = str_contains($this->options['name'], '@')
@@ -57,7 +57,7 @@ class QueueHandle
 		$memory = Arr::get($this->options, 'memory', 128);
 		$timeout = Arr::get($this->options, 'timeout', 60);
 
-		$callback = fn() => $this->worker->runNextJob(
+		$runJob = fn() => $this->worker->runNextJob(
 			$connection,
 			$queue,
 			$delay,
@@ -66,12 +66,12 @@ class QueueHandle
 		);
 
 		if (Arr::get($this->options, 'once', false)) {
-			call_user_func($callback);
+			call_user_func($runJob);
 		} else {
 			// Windows系统使用runNextJob循环执行，Linux系统使用daemon模式
 			if (is_windows()) {
 				while (true) {
-					call_user_func($callback);
+					call_user_func($runJob);
 				}
 			} else {
 				$this->worker->daemon($connection, $queue, $delay, $sleep, $tries, $memory, $timeout);
