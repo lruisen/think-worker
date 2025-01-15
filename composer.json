@@ -1,6 +1,6 @@
 {
   "name": "lruisen/think-worker",
-  "description": "Workerman extend for ThinkPHP",
+  "description": "WorkerMan extend for ThinkPHP",
   "keywords": [
     "workerman",
     "thinkphp"
@@ -30,7 +30,8 @@
     "workerman/workerman": "^4.1",
     "workerman/gateway-worker": "^3.1",
     "topthink/think-queue": "^3.0",
-    "workerman/crontab": "^1.0"
+    "workerman/crontab": "^1.0",
+    "next/var-dumper": "^0.1.0"
   },
   "require-dev": {
     "symfony/var-dumper": ">=4.2"
